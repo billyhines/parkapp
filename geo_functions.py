@@ -117,13 +117,14 @@ def findCloseBlocks(point, meters):
     blocksWithCoords = []
 
     for i in range(0, len(blockMarkers)):
-        blockName = blockMarkers['StreetName'][i] + ' between ' + blockMarkers['BetweenStreet1'][i] + ' and ' + blockMarkers['BetweenStreet2'][i]
         blocksWithCoords.append({"type": "Feature",
                                  "geometry": {
                                     "type": "MultiPolygon",
                                     "coordinates": blockMarkers['coordinates'][i]},
                                  "properties": {
-                                    "block": blockName,
+                                    "StreetName": blockMarkers['StreetName'][i],
+                                    "BetweenStreet1": blockMarkers['BetweenStreet1'][i],
+                                    "BetweenStreet2": blockMarkers['BetweenStreet2'][i],
                                     "description": blockMarkers['description'][i]
                                  }})
 
