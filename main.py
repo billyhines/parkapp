@@ -33,6 +33,9 @@ def index():
                             "type": "Point",
                             "coordinates": user_point}})
 
+    closeBlocks = geo_functions.findCloseBlocks(user_point, 100)
+    features.extend(closeBlocks)
+
     return jsonify(features)
 
 
