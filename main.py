@@ -8,22 +8,8 @@ client = MongoClient()
 db = client['parking']
 geodata_collection = db.bayData
 
-@app.route('/geojson-features', methods=['GET'])
-def get_all_points():
-    features = []
-    for geo_feature in geodata_collection.find({}).limit(90):
-        features.append({
-            "type": "Feature",
-            "geometry": {
-                "type": geo_feature['geometry']['type'],
-                "coordinates": geo_feature['geometry']['coordinates']
-            }
-        })
-    return jsonify(features)
-
-@app.route("/geojson-user", methods=['POST'])
-def index():
-    #if request.method == "POST":
+@app.route("/address-point", methods=['POST'])
+def get_user_point():
     address = request.get_json()['address']
 
     features = []
@@ -33,13 +19,21 @@ def index():
                             "type": "Point",
                             "coordinates": user_point}})
 
+    return jsonify(features)
+
+@app.route("/nearby-parking", methods=['POST'])
+def get_parking_data():
+    #if request.method == "POST":
+    address = request.get_json()['address']
+
+    features = []
+    user_point = geo_functions.geocode_address(address)
     closeBlocks = geo_functions.findCloseBlocks(user_point, 150)
     features.extend(closeBlocks)
 
     featuresWithPrediction = geo_functions.getBlockAvailability(features)
 
     return jsonify(featuresWithPrediction)
-
 
 @app.route('/')
 def main():
