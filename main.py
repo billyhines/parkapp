@@ -33,10 +33,12 @@ def index():
                             "type": "Point",
                             "coordinates": user_point}})
 
-    closeBlocks = geo_functions.findCloseBlocks(user_point, 100)
+    closeBlocks = geo_functions.findCloseBlocks(user_point, 150)
     features.extend(closeBlocks)
 
-    return jsonify(features)
+    featuresWithPrediction = geo_functions.getBlockAvailability(features)
+
+    return jsonify(featuresWithPrediction)
 
 
 @app.route('/')
