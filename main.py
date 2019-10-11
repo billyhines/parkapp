@@ -14,10 +14,13 @@ def get_user_point():
 
     features = []
     user_point = geo_functions.geocode_address(address)
-    features.append({   "type": "Feature",
+    features.append({"type": "Feature",
                         "geometry": {
                             "type": "Point",
-                            "coordinates": user_point}})
+                            "coordinates": user_point["coordinates"]},
+                        "properties": {
+                            "cleanAddress": user_point["address"]
+                        }})
 
     return jsonify(features)
 
@@ -28,7 +31,7 @@ def get_parking_data():
 
     features = []
     user_point = geo_functions.geocode_address(address)
-    closeBlocks = geo_functions.findCloseBlocks(user_point, 150)
+    closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150)
     features.extend(closeBlocks)
 
     featuresWithPrediction = geo_functions.getBlockAvailability(features)

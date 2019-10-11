@@ -4,8 +4,12 @@ def geocode_address(locationQuery):
 
     location = geolocator.geocode(locationQuery)
     coordinates = [location.longitude, location.latitude]
+    cleanAddress = location.address
 
-    return(coordinates)
+    result = {"address": cleanAddress,
+              "coordinates": coordinates}
+
+    return(result)
 
 def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
     from pymongo import MongoClient

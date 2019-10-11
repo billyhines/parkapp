@@ -49,7 +49,11 @@ function addPoint() {
   axios.post('http://127.0.0.1:5000/address-point', {address: userAddress})
       .then(response => {
           console.log(response.data)
-          userAddressLayer = L.geoJSON(response.data, {}).addTo(map);
+          userAddressLayer = L.geoJSON(response.data, {
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(feature.properties.cleanAddress);
+              }
+          }).addTo(map);
   })
 };
 
