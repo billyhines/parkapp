@@ -138,7 +138,7 @@ def getBlockAvailability(features):
     import predictive_functions
 
     blocks = []
-    for i in range(1, len(features)):
+    for i in range(0, len(features)):
         blocks.append((features[i]['properties']['StreetName'], features[i]['properties']['BetweenStreet1'], features[i]['properties']['BetweenStreet2']))
 
     blocks = pd.DataFrame(blocks, columns=('StreetName', 'BetweenStreet1', 'BetweenStreet2'))
@@ -159,7 +159,7 @@ def getBlockAvailability(features):
     blocks['prediction'] = predictions
     blocks['isOpen'] = np.where(blocks['prediction']>=0.95, 'yes', 'no')
 
-    for i in range(1, len(features)):
+    for i in range(0, len(features)):
         tmpStreetName = features[i]['properties']['StreetName']
         tmpBetweenStreet1 = features[i]['properties']['BetweenStreet1']
         tmpBetweenStreet2 = features[i]['properties']['BetweenStreet2']
