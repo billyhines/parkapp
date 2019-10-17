@@ -1,12 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 import geo_functions
-from pymongo import MongoClient
 
 app = Flask(__name__)
-
-client = MongoClient()
-db = client['parking']
-geodata_collection = db.bayData
 
 @app.route("/address-point", methods=['POST'])
 def get_user_point():
@@ -26,15 +21,15 @@ def get_user_point():
 
 @app.route("/nearby-parking", methods=['POST'])
 def get_parking_data():
-    #if request.method == "POST":
     address = request.get_json()['address']
+    time = request.get_json()['time']
 
     features = []
     user_point = geo_functions.geocode_address(address)
     closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150)
     features.extend(closeBlocks)
 
-    featuresWithPrediction = geo_functions.getBlockAvailability(features)
+    featuresWithPrediction = geo_functions.getBlockAvailability(features, time)
 
     return jsonify(featuresWithPrediction)
 

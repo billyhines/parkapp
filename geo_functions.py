@@ -134,11 +134,12 @@ def findCloseBlocks(point, meters):
 
     return(blocksWithCoords)
 
-def getBlockAvailability(features):
+def getBlockAvailability(features, time):
 
     import pandas as pd
     import numpy as np
     import datetime
+    from dateutil.parser import parse
     import predictive_functions
 
     blocks = []
@@ -149,7 +150,11 @@ def getBlockAvailability(features):
     blocks.drop_duplicates(inplace = True)
     blocks.reset_index(inplace = True)
 
-    timestamp = datetime.datetime.now()
+    if time == "":
+        timestamp = datetime.datetime.now()
+    else:
+        timestamp = parse(time)
+
     timestamp = datetime.datetime(2017, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute)
     lookbackWeeks = 10
     timewindow = 50
