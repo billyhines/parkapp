@@ -8,7 +8,7 @@
 </head>
 <body>
     <h1>
-        Let's display some nice maps here!
+        Melbourne Parking Availability
     </h1>
 
 <div id="controls" style="margin: 15px;">
@@ -17,7 +17,7 @@
   	<input id="input1" type="text">
   </form>
   <form id="dateform1" action="#">
-  	<label for="date1">Enter Date - Optional:</label>
+  	<label for="date1">Enter Date (Optional):</label>
   	<input id="date1" type="datetime-local">
   	<input type="submit" id="time_bt">
   </form>
@@ -28,11 +28,12 @@
 
 <script>
 
-var map = L.map('map').setView([-37.8, 144.9], 13);
+var map = L.map('map').setView([-37.813250, 144.962670], 13);
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+L.tileLayer('https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
     attribution: 'Open street map'
 }).addTo(map);
+
 
 // Null variables that will hold our data for the user point and the parking
 var userAddressLayer = null;
