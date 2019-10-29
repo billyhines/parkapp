@@ -1,10 +1,11 @@
-def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow):
+import datetime
+import numpy as np
+import pandas as pd
+from pymongo import MongoClient
 
-    import datetime
-    import numpy as np
-    import pandas as pd
-    from pymongo import MongoClient
-    client = MongoClient()
+def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow, client):
+
+    #client = MongoClient()
     db = client['parking']
 
     # get a list of the deviceIds
@@ -28,25 +29,14 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
 
     # Check the space for each of the windows
     for window in timeWindows:
-        finder = db.sensorData.aggregate([
-        {
-            '$project': {
-                'ArrivalTime': 1,
-                'DepartureTime': 1,
-                'DeviceId': 1,
-                'VehiclePresent': {'$cond': ['$Vehicle Present', 1, 0]},
-                '_id': 1
-            }
-        },
-        {
-            '$match': {
-                'ArrivalTime': {'$lte': window[1]},
-                'DepartureTime': {'$gte': window[0]},
-                'DeviceId': {'$in': deviceList}
-            }
-        }])
 
+        finder = db.sensorData.find({  'ArrivalTime': {'$lte': window[1]},
+                                        'DepartureTime': {'$gte': window[0]},
+                                        'DeviceId': {'$in': deviceList}})
         df = pd.DataFrame(list(finder))
+        df = df.astype({"Vehicle Present": int})
+        df.rename(columns={"Vehicle Present": "VehiclePresent"}, inplace=True)
+
         if len(df) == 0:
             continue
         df.loc[df['ArrivalTime'] < window[0], 'ArrivalTime'] = window[0]

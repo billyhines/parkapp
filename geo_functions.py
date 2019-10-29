@@ -1,5 +1,15 @@
+from geopy.geocoders import Nominatim
+from pymongo import MongoClient
+from shapely.geometry import MultiPolygon, Polygon, Point
+import numpy as np
+import pandas as pd
+import datetime
+from dateutil.parser import parse
+import predictive_functions2
+
+client = MongoClient()
+
 def geocode_address(locationQuery):
-    from geopy.geocoders import Nominatim
     geolocator = Nominatim(user_agent="parkApp")
 
     location = geolocator.geocode(locationQuery)
@@ -12,8 +22,6 @@ def geocode_address(locationQuery):
     return(result)
 
 def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
-    from pymongo import MongoClient
-    from shapely.geometry import MultiPolygon, Polygon, Point
     client = MongoClient()
     db = client['parking']
 
@@ -22,9 +30,7 @@ def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
                                                 'BetweenStreet2': BetweenStreet2})
 
     markerIds = [x['StreetMarker'] for x in markers]
-
     spaceData = db.bayData.find({"properties.marker_id" :{"$in": markerIds}})
-
     spacePolys = []
 
     for space in spaceData:
@@ -39,7 +45,6 @@ def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
     return(spacePolys)
 
 def findCloseParking(point, meters):
-    from pymongo import MongoClient
     client = MongoClient()
     db = client['parking']
 
@@ -57,9 +62,6 @@ def findCloseParking(point, meters):
 
 
 def findCloseBlocks(point, meters):
-    from pymongo import MongoClient
-    import numpy as np
-    import pandas as pd
     client = MongoClient()
     db = client['parking']
 
@@ -136,13 +138,6 @@ def findCloseBlocks(point, meters):
 
 def getBlockAvailability(features, time):
 
-    import pandas as pd
-    import numpy as np
-    import datetime
-    from dateutil.parser import parse
-    #import predictive_functions
-    import predictive_functions2
-
     blocks = []
     for i in range(0, len(features)):
         blocks.append((features[i]['properties']['StreetName'], features[i]['properties']['BetweenStreet1'], features[i]['properties']['BetweenStreet2']))
@@ -162,11 +157,11 @@ def getBlockAvailability(features, time):
 
     predictions = []
     for i in range(0, len(blocks)):
-        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow)
-        prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow)
+        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
+        prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
         predictions.append(prediction)
 
-    #predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow)
+    #predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client)
 
     blocks['prediction'] = predictions
     blocks['isOpen'] = np.where(blocks['prediction']>=0.95, 'yes', 'no')

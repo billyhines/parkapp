@@ -1,9 +1,9 @@
-def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow):
+import datetime
+import numpy as np
+import pandas as pd
+from pymongo import MongoClient
 
-    import datetime
-    import numpy as np
-    import pandas as pd
-    from pymongo import MongoClient
+def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow):
     client = MongoClient()
     db = client['parking']
 
@@ -33,23 +33,9 @@ def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, 
     minTime = timeWindows[lookbackWeeks-1][0]
 
     # One BFQ
-    finder = db.sensorData.aggregate([
-    {
-        '$project': {
-            'ArrivalTime': 1,
-            'DepartureTime': 1,
-            'DeviceId': 1,
-            'VehiclePresent': {'$cond': ['$Vehicle Present', 1, 0]},
-            '_id': 1
-        }
-    },
-    {
-        '$match': {
-            'ArrivalTime': {'$lte': maxTime},
-            'DepartureTime': {'$gte': minTime},
-            'DeviceId': {'$in': deviceList}
-        }
-    }])
+    finder = db.sensorData.find({'ArrivalTime': {'$lte': maxTime},
+                                 'DepartureTime': {'$gte': minTime},
+                                 'DeviceId': {'$in': deviceList}})
 
     #Find all events that find within a window, trim them, and label them
     eventsInWindows = []
@@ -65,8 +51,8 @@ def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, 
                 eventsInWindows.append(event)
 
     eventsInWindows = pd.DataFrame(eventsInWindows)
-    deviceIdsForBlock.head()
-    blocks.head()
+    eventsInWindows = eventsInWindows.astype({"Vehicle Present": int})
+    eventsInWindows.rename(columns={"Vehicle Present": "VehiclePresent"}, inplace=True)
 
     #Loop over the blocks?
     #blocksPredictions = []

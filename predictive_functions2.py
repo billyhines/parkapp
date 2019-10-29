@@ -1,10 +1,11 @@
-def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow):
+import datetime
+import numpy as np
+import pandas as pd
+from pymongo import MongoClient
 
-    import datetime
-    import numpy as np
-    import pandas as pd
-    from pymongo import MongoClient
-    client = MongoClient()
+def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow, client):
+
+    #client = MongoClient()
     db = client['parking']
 
     # get a list of the deviceIds
@@ -30,23 +31,9 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
     minTime = timeWindows[lookbackWeeks-1][0]
 
     # One BFQ
-    finder = db.sensorData.aggregate([
-    {
-        '$project': {
-            'ArrivalTime': 1,
-            'DepartureTime': 1,
-            'DeviceId': 1,
-            'VehiclePresent': {'$cond': ['$Vehicle Present', 1, 0]},
-            '_id': 1
-        }
-    },
-    {
-        '$match': {
-            'ArrivalTime': {'$lte': maxTime},
-            'DepartureTime': {'$gte': minTime},
-            'DeviceId': {'$in': deviceList}
-        }
-    }])
+    finder = db.sensorData.find({   'ArrivalTime': {'$lte': maxTime},
+                                    'DepartureTime': {'$gte': minTime},
+                                    'DeviceId': {'$in': deviceList}})
 
     #Find all events that find within a window, trim them, and label them
     eventsInWindows = []
@@ -62,6 +49,8 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
                 eventsInWindows.append(event)
 
     eventsInWindows = pd.DataFrame(eventsInWindows)
+    eventsInWindows = eventsInWindows.astype({"Vehicle Present": int})
+    eventsInWindows.rename(columns={"Vehicle Present": "VehiclePresent"}, inplace=True)
 
     # Sum up the availability across each window
     for window in timeWindows:
