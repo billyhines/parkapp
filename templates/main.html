@@ -24,6 +24,7 @@
   <button id="clear_bt">Clear</button>
 </div>
 
+
 <div id="map" style="height: 80vh;"></div>
 
 <script>
@@ -64,14 +65,17 @@ function addParking() {
   var userTime = document.getElementById("date1").value;
   axios.post('http://127.0.0.1:5000/nearby-parking', {address: userAddress, time: userTime})
       .then(response => {
-        console.log(response.data)
-        parkingLayer = L.geoJSON(response.data, {
-          style: style,
-          onEachFeature: function (feature, layer) {
-              layer.bindPopup(feature.properties.description);
-            }
-        }).addTo(map);
-    })
+          console.log(response.data)
+          parkingLayer = L.geoJSON(response.data, {
+            style: style,
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(feature.properties.description);
+              }
+          }).addTo(map);
+    }).catch((error) => {popup = L.popup()
+                                .setLatLng([-37.813250, 144.962670])
+                                .setContent("No nearby parking spots found")
+                                .openOn(map);})
 };
 
 // add color mapping function

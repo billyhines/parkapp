@@ -89,6 +89,6 @@ def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, 
         #blocksPredictions.append((blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], prediction))
 
 
-
+    client.close()
     #blocksPredictions = pd.DataFrame(blocksPredictions, columns=('StreetName', 'BetweenStreet1', 'BetweenStreet2', 'prediction'))
     return(predictions)

@@ -7,8 +7,6 @@ import datetime
 from dateutil.parser import parse
 import predictive_functions2
 
-client = MongoClient()
-
 def geocode_address(locationQuery):
     geolocator = Nominatim(user_agent="parkApp")
 
@@ -42,6 +40,7 @@ def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
     #blockMulti = MultiPolygon(spacePolys)
 
     #return(blockMulti)
+    client.close()
     return(spacePolys)
 
 def findCloseParking(point, meters):
@@ -58,6 +57,7 @@ def findCloseParking(point, meters):
                                      }
                                    }
                                 })
+    client.close()
     return(closeBays)
 
 
@@ -134,6 +134,7 @@ def findCloseBlocks(point, meters):
                                     "description": blockMarkers['description'][i]
                                  }})
 
+    client.close()
     return(blocksWithCoords)
 
 def getBlockAvailability(features, time):
@@ -157,11 +158,11 @@ def getBlockAvailability(features, time):
 
     predictions = []
     for i in range(0, len(blocks)):
-        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
-        prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
+        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow)
+        prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow)
         predictions.append(prediction)
 
-    #predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client)
+    #predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow)
 
     blocks['prediction'] = predictions
     blocks['isOpen'] = np.where(blocks['prediction']>=0.95, 'yes', 'no')
