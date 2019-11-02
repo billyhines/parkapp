@@ -39,6 +39,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
 // Null variables that will hold our data for the user point and the parking
 var userAddressLayer = null;
 var parkingLayer = null;
+var messageLayer = null;
 
 // Create event listener for the forms
 document.getElementById("dateform1").addEventListener('submit', addPoint);
@@ -72,9 +73,8 @@ function addParking() {
                 layer.bindPopup(feature.properties.description);
               }
           }).addTo(map);
-    }).catch((error) => {popup = L.popup()
-                                .setLatLng([-37.813250, 144.962670])
-                                .setContent("No nearby parking spots found")
+  }).catch((error) => {L.popup().setLatLng([-37.813250, 144.962670])
+                                .setContent(error.response.data.message)
                                 .openOn(map);})
 };
 

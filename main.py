@@ -10,6 +10,7 @@ def get_user_point():
 
     features = []
     user_point = geo_functions.geocode_address(address)
+
     features.append({"type": "Feature",
                         "geometry": {
                             "type": "Point",
@@ -27,7 +28,12 @@ def get_parking_data():
     time = request.get_json()['time']
 
     features = []
-    user_point = geo_functions.geocode_address(address)
+
+    try:
+        user_point = geo_functions.geocode_address(address)
+    except:
+        raise InvalidUsage('Could not find address', status_code=404)
+
     try:
         closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150)
     except:
