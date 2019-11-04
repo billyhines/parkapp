@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 from pymongo import MongoClient
 
-def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow):
+def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow, client):
 
-    client = MongoClient()
+    #client = MongoClient()
     db = client['parking']
 
     # get a list of the deviceIds

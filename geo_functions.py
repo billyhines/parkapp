@@ -23,9 +23,9 @@ def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
     client = MongoClient()
     db = client['parking']
 
-    markers =  db.deviceToSpaceAndBlock.find({  'StreetName': StreetName,
-                                                'BetweenStreet1': BetweenStreet1,
-                                                'BetweenStreet2': BetweenStreet2})
+    markers =  db.deviceToSpaceAndBlock.find({'StreetName': StreetName,
+                                              'BetweenStreet1': BetweenStreet1,
+                                              'BetweenStreet2': BetweenStreet2})
 
     markerIds = [x['StreetMarker'] for x in markers]
     spaceData = db.bayData.find({"properties.marker_id" :{"$in": markerIds}})
@@ -33,33 +33,10 @@ def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
 
     for space in spaceData:
         coords = [(p[0], p[1]) for p in space['geometry']['coordinates'][0][0]]
-        #tmpPoly = Polygon(coords)
-        #spacePolys.append(tmpPoly)
         spacePolys.append(coords)
 
-    #blockMulti = MultiPolygon(spacePolys)
-
-    #return(blockMulti)
-    #client.close()
+    client.close()
     return(spacePolys)
-
-def findCloseParking(point, meters):
-    client = MongoClient()
-    db = client['parking']
-
-    closeBays = db.bayData.find({  'geometry': {
-                                     '$near': {
-                                       '$geometry': {
-                                          'type': "Point" ,
-                                          'coordinates': [point[0], point[1]]
-                                       },
-                                       '$maxDistance': meters
-                                     }
-                                   }
-                                })
-    #client.close()
-    return(closeBays)
-
 
 def findCloseBlocks(point, meters):
     client = MongoClient()
@@ -134,10 +111,12 @@ def findCloseBlocks(point, meters):
                                     "description": blockMarkers['description'][i]
                                  }})
 
-    #client.close()
+    client.close()
     return(blocksWithCoords)
 
 def getBlockAvailability(features, time):
+    client = MongoClient()
+    db = client['parking']
 
     blocks = []
     for i in range(0, len(features)):
@@ -158,11 +137,11 @@ def getBlockAvailability(features, time):
 
     #predictions = []
     #for i in range(0, len(blocks)):
-        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow)
-        #prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow)
+        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
+        #prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
         #predictions.append(prediction)
 
-    predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow)
+    predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client)
 
     blocks['prediction'] = predictions
     blocks['isOpen'] = np.where(blocks['prediction']>=0.95, 'yes', 'no')
@@ -177,4 +156,5 @@ def getBlockAvailability(features, time):
         features[i]['properties']['prediction'] = tmpPrediction
         features[i]['properties']['isOpen'] = tmpIsOpen
 
+    client.close()
     return(features)

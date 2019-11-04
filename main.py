@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import geo_functions
 
 app = Flask(__name__)
-app.secret_key = 'super secret'
+app.secret_key = 'V3gYbg@QD'
 
 @app.route("/address-point", methods=['POST'])
 def get_user_point():
@@ -44,11 +44,6 @@ def get_parking_data():
 
     return jsonify(featuresWithPrediction)
 
-@app.route('/')
-def main():
-    return render_template('main.html')
-
-
 class InvalidUsage(Exception):
     status_code = 400
 
@@ -70,4 +65,7 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
-app.run()
+@app.route('/')
+def main():
+    return render_template('main.html')
+#app.run()

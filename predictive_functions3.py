@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from pymongo import MongoClient
 
-def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow):
-    client = MongoClient()
+def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client):
+    #client = MongoClient()
     db = client['parking']
 
     # get a list of the deviceIds - .086
