@@ -18,5 +18,4 @@ features.extend(closeBlocks)
 featuresWithPrediction = geo_functions.getBlockAvailability(features, time)
 
 prof = cProfile.run("""
-
 """, sort=2)
