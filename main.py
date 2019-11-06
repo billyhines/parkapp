@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import geo_functions
 
 app = Flask(__name__)
-app.secret_key = 'V3gYbg@QD'
+app.secret_key = 'super secret'
 
 @app.route("/address-point", methods=['POST'])
 def get_user_point():

@@ -31,9 +31,9 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
     minTime = timeWindows[lookbackWeeks-1][0]
 
     # One BFQ
-    finder = db.sensorData.find({   'ArrivalTime': {'$lte': maxTime},
-                                    'DepartureTime': {'$gte': minTime},
-                                    'DeviceId': {'$in': deviceList}})
+    finder = db.sensorData.find({'ArrivalTime': {'$lte': maxTime},
+                                 'DepartureTime': {'$gte': minTime},
+                                 'DeviceId': {'$in': deviceList}})
 
     #Find all events that find within a window, trim them, and label them
     eventsInWindows = []
