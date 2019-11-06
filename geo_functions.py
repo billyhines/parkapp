@@ -11,6 +11,10 @@ def geocode_address(locationQuery):
     geolocator = Nominatim(user_agent="parkApp")
 
     location = geolocator.geocode(locationQuery)
+
+    if location == None:
+        raise AttributeError('No results found from geocoder')
+
     coordinates = [location.longitude, location.latitude]
     cleanAddress = location.address
 
@@ -57,6 +61,9 @@ def findCloseBlocks(point, meters):
     markerIds = [x['properties']['marker_id'] for x in closeBays]
     markerIds = np.unique(markerIds)
     markerIds = list(filter(None, markerIds))
+
+    if len(markerIds) == 0:
+        raise AttributeError('No parking bays found near specified point')
 
     # find blocks with close markers
     blocksAndMarkers =  db.deviceToSpaceAndBlock.find({'StreetMarker': {'$in': markerIds}})

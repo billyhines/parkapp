@@ -28,42 +28,13 @@ def get_parking_data():
     time = request.get_json()['time']
 
     features = []
-
-    try:
-        user_point = geo_functions.geocode_address(address)
-    except:
-        raise InvalidUsage('Could not find address', status_code=404)
-
-    try:
-        closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150)
-    except:
-        raise InvalidUsage('No parking found near address', status_code=404)
-
+    user_point = geo_functions.geocode_address(address)
+    closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150)
     features.extend(closeBlocks)
+
     featuresWithPrediction = geo_functions.getBlockAvailability(features, time)
 
     return jsonify(featuresWithPrediction)
-
-class InvalidUsage(Exception):
-    status_code = 400
-
-    def __init__(self, message, status_code=None, payload=None):
-        Exception.__init__(self)
-        self.message = message
-        if status_code is not None:
-            self.status_code = status_code
-        self.payload = payload
-
-    def to_dict(self):
-        rv = dict(self.payload or ())
-        rv['message'] = self.message
-        return rv
-
-@app.errorhandler(InvalidUsage)
-def handle_invalid_usage(error):
-    response = jsonify(error.to_dict())
-    response.status_code = error.status_code
-    return response
 
 @app.route('/')
 def main():
