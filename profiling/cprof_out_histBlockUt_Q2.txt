@@ -1,0 +1,196 @@
+         1579782 function calls in 9.789 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    1.296    1.296    9.789    9.789 <string>:2(<module>)
+   197093    0.271    0.000    8.493    0.000 cursor.py:1185(next)
+        7    0.012    0.002    8.042    1.149 cursor.py:1076(_refresh)
+        6    0.006    0.001    8.030    1.338 cursor.py:911(__send_message)
+        6    0.000    0.000    5.618    0.936 mongo_client.py:1106(_send_message_with_response)
+        6    0.000    0.000    5.618    0.936 mongo_client.py:1147(_reset_on_error)
+        6    0.000    0.000    5.618    0.936 server.py:66(send_message_with_response)
+        6    0.008    0.001    5.615    0.936 pool.py:603(receive_message)
+        6    0.015    0.003    5.607    0.935 network.py:169(receive_message)
+       12    0.158    0.013    5.557    0.463 network.py:207(_receive_data_on_socket)
+       14    5.399    0.386    5.399    0.386 {method 'recv' of '_socket.socket' objects}
+        6    0.000    0.000    2.406    0.401 cursor.py:1066(_unpack_response)
+        6    0.000    0.000    2.406    0.401 message.py:1454(unpack_response)
+        6    2.281    0.380    2.406    0.401 {bson._cbson.decode_all}
+   197092    0.127    0.000    0.127    0.000 database.py:394(_fix_outgoing)
+   197092    0.101    0.000    0.125    0.000 objectid.py:83(__init__)
+        6    0.035    0.006    0.035    0.006 message.py:1469(unpack)
+   197111    0.028    0.000    0.028    0.000 collection.py:310(database)
+   394275    0.024    0.000    0.024    0.000 {len}
+   197104    0.013    0.000    0.013    0.000 {isinstance}
+   197093    0.012    0.000    0.012    0.000 {method 'popleft' of 'collections.deque' objects}
+        6    0.000    0.000    0.001    0.000 message.py:657(_op_msg)
+        5    0.000    0.000    0.001    0.000 message.py:388(get_message)
+       12    0.000    0.000    0.001    0.000 pool.py:979(get_socket)
+        1    0.000    0.000    0.001    0.001 message.py:305(get_message)
+        6    0.000    0.000    0.000    0.000 {pymongo._cmessage._op_msg}
+        6    0.000    0.000    0.000    0.000 pool.py:586(send_message)
+        8    0.000    0.000    0.000    0.000 socket.py:227(meth)
+        6    0.000    0.000    0.000    0.000 {method 'sendall' of '_socket.socket' objects}
+     1793    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+        6    0.000    0.000    0.000    0.000 contextlib.py:21(__exit__)
+        6    0.000    0.000    0.000    0.000 topology.py:217(select_server)
+        6    0.000    0.000    0.000    0.000 contextlib.py:15(__enter__)
+        6    0.000    0.000    0.000    0.000 pool.py:1053(return_socket)
+        6    0.000    0.000    0.000    0.000 pool.py:1016(_get_socket_no_auth)
+        6    0.000    0.000    0.000    0.000 topology.py:157(select_servers)
+        5    0.000    0.000    0.000    0.000 message.py:372(as_command)
+        5    0.000    0.000    0.000    0.000 topology.py:226(select_server_by_address)
+        6    0.000    0.000    0.000    0.000 topology.py:188(_select_servers_loop)
+        6    0.000    0.000    0.000    0.000 mongo_client.py:1046(_get_topology)
+        6    0.000    0.000    0.000    0.000 pool.py:1069(_check)
+        6    0.000    0.000    0.000    0.000 topology.py:132(open)
+        5    0.000    0.000    0.000    0.000 message.py:216(_gen_get_more_command)
+        1    0.000    0.000    0.000    0.000 message.py:276(as_command)
+        6    0.000    0.000    0.000    0.000 topology_description.py:217(apply_selector)
+        6    0.000    0.000    0.000    0.000 son.py:40(__init__)
+        6    0.000    0.000    0.000    0.000 mongo_client.py:1604(_receive_cluster_time)
+        6    0.000    0.000    0.000    0.000 topology.py:460(_ensure_opened)
+       12    0.000    0.000    0.000    0.000 periodic_executor.py:53(open)
+        6    0.000    0.000    0.000    0.000 thread_util.py:83(release)
+        2    0.000    0.000    0.000    0.000 network.py:264(socket_closed)
+       23    0.000    0.000    0.000    0.000 abc.py:128(__instancecheck__)
+       12    0.000    0.000    0.000    0.000 son.py:135(update)
+        6    0.000    0.000    0.000    0.000 client_session.py:537(_apply_to)
+        2    0.000    0.000    0.000    0.000 {select.select}
+        6    0.000    0.000    0.000    0.000 thread_util.py:63(release)
+        1    0.000    0.000    0.000    0.000 mongo_client.py:1555(_ensure_session)
+        1    0.000    0.000    0.000    0.000 database.py:237(__getattr__)
+        1    0.000    0.000    0.000    0.000 mongo_client.py:1506(__start_session)
+        6    0.000    0.000    0.000    0.000 server.py:40(open)
+        6    0.000    0.000    0.000    0.000 {built-in method now}
+        1    0.000    0.000    0.000    0.000 database.py:251(__getitem__)
+       30    0.000    0.000    0.000    0.000 son.py:57(__setitem__)
+        1    0.000    0.000    0.000    0.000 collection.py:75(__init__)
+        1    0.000    0.000    0.000    0.000 collection.py:1266(find)
+        1    0.000    0.000    0.000    0.000 message.py:181(_gen_find_command)
+        6    0.000    0.000    0.000    0.000 topology_description.py:187(known_servers)
+        1    0.000    0.000    0.000    0.000 cursor.py:112(__init__)
+        6    0.000    0.000    0.000    0.000 monitor.py:71(open)
+        6    0.000    0.000    0.000    0.000 server.py:136(get_socket)
+       12    0.000    0.000    0.000    0.000 threading.py:986(isAlive)
+        6    0.000    0.000    0.000    0.000 topology.py:353(receive_cluster_time)
+        6    0.000    0.000    0.000    0.000 threading.py:373(notify)
+        6    0.000    0.000    0.000    0.000 son.py:114(pop)
+       37    0.000    0.000    0.000    0.000 {getattr}
+        1    0.000    0.000    0.000    0.000 mongo_client.py:1547(_get_server_session)
+        6    0.000    0.000    0.000    0.000 {method 'unpack_from' of 'Struct' objects}
+        6    0.000    0.000    0.000    0.000 pool.py:715(send_cluster_time)
+        1    0.000    0.000    0.000    0.000 topology.py:416(get_server_session)
+        6    0.000    0.000    0.000    0.000 random.py:275(choice)
+       23    0.000    0.000    0.000    0.000 _weakrefset.py:70(__contains__)
+        6    0.000    0.000    0.000    0.000 thread_util.py:38(acquire)
+       13    0.000    0.000    0.000    0.000 client_session.py:526(_in_transaction)
+        6    0.000    0.000    0.000    0.000 topology.py:293(get_server_by_address)
+        6    0.000    0.000    0.000    0.000 son.py:46(__new__)
+       24    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+        6    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
+        6    0.000    0.000    0.000    0.000 contextlib.py:82(helper)
+        6    0.000    0.000    0.000    0.000 mongo_client.py:1591(_send_cluster_time)
+        6    0.000    0.000    0.000    0.000 pool.py:720(update_last_checkin_time)
+        1    0.000    0.000    0.000    0.000 client_session.py:614(get_server_session)
+        6    0.000    0.000    0.000    0.000 helpers.py:101(_check_command_response)
+        1    0.000    0.000    0.000    0.000 cursor.py:294(__die)
+        6    0.000    0.000    0.000    0.000 server_description.py:200(is_server_type_known)
+        5    0.000    0.000    0.000    0.000 message.py:355(__init__)
+       48    0.000    0.000    0.000    0.000 son.py:77(__iter__)
+        5    0.000    0.000    0.000    0.000 message.py:368(use_command)
+       18    0.000    0.000    0.000    0.000 {hasattr}
+        1    0.000    0.000    0.000    0.000 client_session.py:288(_end_session)
+        1    0.000    0.000    0.000    0.000 <string>:28(_replace)
+       26    0.000    0.000    0.000    0.000 {time.time}
+        6    0.000    0.000    0.000    0.000 message.py:1447(__init__)
+       13    0.000    0.000    0.000    0.000 client_session.py:250(active)
+        6    0.000    0.000    0.000    0.000 read_preferences.py:108(document)
+        1    0.000    0.000    0.000    0.000 common.py:439(validate_is_mapping)
+        6    0.000    0.000    0.000    0.000 threading.py:300(_is_owned)
+        1    0.000    0.000    0.000    0.000 cursor.py:326(__query_spec)
+        6    0.000    0.000    0.000    0.000 response.py:22(__init__)
+       18    0.000    0.000    0.000    0.000 {nt.getpid}
+        1    0.000    0.000    0.000    0.000 client_session.py:638(_clear_stale)
+       12    0.000    0.000    0.000    0.000 server_description.py:89(address)
+        6    0.000    0.000    0.000    0.000 {method 'unpack' of 'Struct' objects}
+        6    0.000    0.000    0.000    0.000 pool.py:753(__hash__)
+        1    0.000    0.000    0.000    0.000 message.py:235(__init__)
+        6    0.000    0.000    0.000    0.000 pool.py:691(validate_session)
+       18    0.000    0.000    0.000    0.000 {method 'acquire' of 'thread.lock' objects}
+        1    0.000    0.000    0.000    0.000 client_session.py:269(__init__)
+        6    0.000    0.000    0.000    0.000 pool.py:723(idle_time_seconds)
+        6    0.000    0.000    0.000    0.000 py3compat.py:87(itervalues)
+        6    0.000    0.000    0.000    0.000 cursor.py:1069(_read_preference)
+        2    0.000    0.000    0.000    0.000 client_session.py:588(timed_out)
+        1    0.000    0.000    0.000    0.000 <string>:12(_make)
+        1    0.000    0.000    0.000    0.000 mongo_client.py:1551(_return_server_session)
+        6    0.000    0.000    0.000    0.000 {next}
+        1    0.000    0.000    0.000    0.000 message.py:255(use_command)
+       12    0.000    0.000    0.000    0.000 server_description.py:94(server_type)
+        6    0.000    0.000    0.000    0.000 collection.py:305(name)
+        6    0.000    0.000    0.000    0.000 client_session.py:477(_advance_cluster_time)
+        1    0.000    0.000    0.000    0.000 common.py:641(__init__)
+        6    0.000    0.000    0.000    0.000 pool.py:658(check_auth)
+        7    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x000000006EA691E0}
+        6    0.000    0.000    0.000    0.000 server.py:152(_split_message)
+        1    0.000    0.000    0.000    0.000 topology.py:441(return_server_session)
+        6    0.000    0.000    0.000    0.000 {iter}
+        7    0.000    0.000    0.000    0.000 {method 'values' of 'dict' objects}
+        6    0.000    0.000    0.000    0.000 contextlib.py:12(__init__)
+       12    0.000    0.000    0.000    0.000 monitoring.py:693(enabled_for_commands)
+       13    0.000    0.000    0.000    0.000 database.py:155(client)
+       12    0.000    0.000    0.000    0.000 threading.py:570(isSet)
+       12    0.000    0.000    0.000    0.000 topology_description.py:154(topology_type)
+        6    0.000    0.000    0.000    0.000 pool.py:383(wait_queue_timeout)
+        6    0.000    0.000    0.000    0.000 client_session.py:297(_check_ended)
+        1    0.000    0.000    0.000    0.000 client_session.py:635(return_server_session_no_lock)
+        6    0.000    0.000    0.000    0.000 client_session.py:500(_advance_operation_time)
+        6    0.000    0.000    0.000    0.000 threading.py:64(_note)
+        6    0.000    0.000    0.000    0.000 server.py:148(pool)
+        1    0.000    0.000    0.000    0.000 {map}
+        7    0.000    0.000    0.000    0.000 database.py:160(name)
+        6    0.000    0.000    0.000    0.000 pool.py:363(max_idle_time_seconds)
+        6    0.000    0.000    0.000    0.000 binary.py:156(subtype)
+        6    0.000    0.000    0.000    0.000 settings.py:89(server_selection_timeout)
+        6    0.000    0.000    0.000    0.000 topology_description.py:114(check_compatible)
+        1    0.000    0.000    0.000    0.000 client_session.py:245(__init__)
+        3    0.000    0.000    0.000    0.000 common.py:141(validate_boolean)
+        6    0.000    0.000    0.000    0.000 topology.py:335(max_cluster_time)
+        6    0.000    0.000    0.000    0.000 response.py:43(address)
+        6    0.000    0.000    0.000    0.000 {method 'random' of '_random.Random' objects}
+        6    0.000    0.000    0.000    0.000 {method 'itervalues' of 'dict' objects}
+        6    0.000    0.000    0.000    0.000 client_session.py:325(cluster_time)
+        6    0.000    0.000    0.000    0.000 topology.py:407(description)
+        6    0.000    0.000    0.000    0.000 topology.py:339(_receive_cluster_time_no_lock)
+        6    0.000    0.000    0.000    0.000 server.py:139(description)
+        1    0.000    0.000    0.000    0.000 read_preferences.py:147(min_wire_version)
+        6    0.000    0.000    0.000    0.000 {hash}
+        6    0.000    0.000    0.000    0.000 {method 'pop' of 'set' objects}
+        6    0.000    0.000    0.000    0.000 {method 'iteritems' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 client_session.py:116(__init__)
+        6    0.000    0.000    0.000    0.000 response.py:48(request_id)
+       12    0.000    0.000    0.000    0.000 {method 'release' of 'thread.lock' objects}
+        6    0.000    0.000    0.000    0.000 response.py:38(data)
+        6    0.000    0.000    0.000    0.000 response.py:58(from_command)
+        3    0.000    0.000    0.000    0.000 common.py:665(codec_options)
+        2    0.000    0.000    0.000    0.000 {method 'fileno' of '_socket.socket' objects}
+        1    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 read_concern.py:41(level)
+        1    0.000    0.000    0.000    0.000 client_session.py:314(options)
+        2    0.000    0.000    0.000    0.000 collation.py:216(validate_collation_or_none)
+        1    0.000    0.000    0.000    0.000 read_preferences.py:119(mode)
+        1    0.000    0.000    0.000    0.000 common.py:699(_read_preference_for)
+        2    0.000    0.000    0.000    0.000 topology_description.py:182(logical_session_timeout_minutes)
+        1    0.000    0.000    0.000    0.000 client_session.py:128(causal_consistency)
+        1    0.000    0.000    0.000    0.000 cursor.py:1173(session)
+        1    0.000    0.000    0.000    0.000 cursor.py:814(__set_hint)
+        2    0.000    0.000    0.000    0.000 common.py:707(read_concern)
+        1    0.000    0.000    0.000    0.000 common.py:672(write_concern)
+        1    0.000    0.000    0.000    0.000 {method 'copy' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 common.py:690(read_preference)
+        1    0.000    0.000    0.000    0.000 cursor.py:1182(__iter__)
+        1    0.000    0.000    0.000    0.000 {method 'pop' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {method 'appendleft' of 'collections.deque' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
