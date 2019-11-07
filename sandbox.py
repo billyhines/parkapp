@@ -19,3 +19,14 @@ featuresWithPrediction = geo_functions.getBlockAvailability(features, time)
 
 prof = cProfile.run("""
 """, sort=2)
+
+
+# Can't geolocate
+address = 'trashjinput_wontlocat'
+user_point = geo_functions.geocode_address(address)
+
+# Can't find close blocks
+
+address = '101 Arch Street Boston, MA'
+user_point = geo_functions.geocode_address(address)
+closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150)

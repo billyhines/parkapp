@@ -28,10 +28,15 @@ def get_parking_data():
     time = request.get_json()['time']
 
     features = []
-    user_point = geo_functions.geocode_address(address)
-    closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150)
-    features.extend(closeBlocks)
 
+    try:
+        user_point = geo_functions.geocode_address(address)
+        closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150)
+    except AttributeError as e:
+        return jsonify({"message": e.message}), 400
+
+
+    features.extend(closeBlocks)
     featuresWithPrediction = geo_functions.getBlockAvailability(features, time)
 
     return jsonify(featuresWithPrediction)

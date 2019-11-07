@@ -13,7 +13,7 @@ def geocode_address(locationQuery):
     location = geolocator.geocode(locationQuery)
 
     if location == None:
-        raise AttributeError('No results found from geocoder')
+        raise AttributeError('Address could not be geocoded')
 
     coordinates = [location.longitude, location.latitude]
     cleanAddress = location.address

@@ -74,7 +74,7 @@ function addParking() {
               }
           }).addTo(map);
   }).catch((error) => {L.popup().setLatLng([-37.813250, 144.962670])
-                                .setContent(error.response.data)
+                                .setContent(error.response.data.message)
                                 .openOn(map);})
 };
 
