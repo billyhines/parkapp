@@ -1,11 +1,12 @@
 import datetime
 import numpy as np
 import pandas as pd
+import itertools
 from pymongo import MongoClient
 
 def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow, client):
 
-    client = MongoClient()
+    #client = MongoClient()
     db = client['parking']
 
     # get a list of the deviceIds
@@ -24,16 +25,25 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
         windowClose = timestamp - datetime.timedelta(days = 7 * i) + datetime.timedelta(minutes = timewindow/2)
         timeWindows.append([windowOpen, windowClose])
 
+    # intialize time counter variables
     openMinutes = 0
     totalMinutes = 0
 
-    # Check the space for each of the windows
-    for window in timeWindows:
+    # create a list of finders
+    finderlist = [db.sensorData.find({'ArrivalTime': {'$lte': window[1]},'DepartureTime': {'$gte': window[0]},'DeviceId': {'$in': deviceList}}) for window in timeWindows]
 
-        finder = db.sensorData.find({  'ArrivalTime': {'$lte': window[1]},
-                                        'DepartureTime': {'$gte': window[0]},
-                                        'DeviceId': {'$in': deviceList}})
-        df = pd.DataFrame(list(finder))
+    # Check the space for each of the windows
+    for finder,window in itertools.izip(finderlist,timeWindows):
+
+        df = []
+        for event in finder:
+            if event['ArrivalTime'] < window[0]:
+                event['ArrivalTime'] = window[0]
+            if event['DepartureTime'] > window[1]:
+                event['DepartureTime'] = window[1]
+            df.append(event)
+        df = pd.DataFrame(df)
+
         df = df.astype({"Vehicle Present": int})
         df.rename(columns={"Vehicle Present": "VehiclePresent"}, inplace=True)
 

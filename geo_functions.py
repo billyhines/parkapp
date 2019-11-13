@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import datetime
 from dateutil.parser import parse
-import predictive_functions3
+import predictive_functions
 
 def geocode_address(locationQuery):
     geolocator = Nominatim(user_agent="parkApp")
@@ -142,13 +142,13 @@ def getBlockAvailability(features, time):
     lookbackWeeks = 10
     timewindow = 50
 
-    #predictions = []
-    #for i in range(0, len(blocks)):
-        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
+    predictions = []
+    for i in range(0, len(blocks)):
+        prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
         #prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
-        #predictions.append(prediction)
+        predictions.append(prediction)
 
-    predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client)
+    #predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client)
 
     blocks['prediction'] = predictions
     blocks['isOpen'] = np.where(blocks['prediction']>=0.95, 'yes', 'no')
