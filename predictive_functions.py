@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import itertools
 from pymongo import MongoClient
+import pymongo.cursor
 
 def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow, client):
 
@@ -30,7 +31,12 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
     totalMinutes = 0
 
     # create a list of finders
-    finderlist = [db.sensorData.find({'ArrivalTime': {'$lte': window[1]},'DepartureTime': {'$gte': window[0]},'DeviceId': {'$in': deviceList}}) for window in timeWindows]
+    finderlist = [db.sensorData.find({'ArrivalTime': {'$lte': window[1]},
+                                      'DepartureTime': {'$gte': window[0]},
+                                      'DeviceId': {'$in': deviceList}},
+                                      cursor_type=pymongo.cursor.CursorType.EXHAUST,
+                                      batch_size=1000) for window in timeWindows]
+
 
     # Check the space for each of the windows
     for finder,window in itertools.izip(finderlist,timeWindows):
