@@ -23,22 +23,22 @@ def geocode_address(locationQuery):
 
     return(result)
 
-def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
-    db = client['parking']
-
-    markers =  db.deviceToSpaceAndBlock.find({'StreetName': StreetName,
-                                              'BetweenStreet1': BetweenStreet1,
-                                              'BetweenStreet2': BetweenStreet2})
-
-    markerIds = [x['StreetMarker'] for x in markers]
-    spaceData = db.bayData.find({"properties.marker_id" :{"$in": markerIds}})
-    spacePolys = []
-
-    for space in spaceData:
-        coords = [(p[0], p[1]) for p in space['geometry']['coordinates'][0][0]]
-        spacePolys.append(coords)
-
-    return(spacePolys)
+# def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
+#     db = client['parking']
+#
+#     markers =  db.deviceToSpaceAndBlock.find({'StreetName': StreetName,
+#                                               'BetweenStreet1': BetweenStreet1,
+#                                               'BetweenStreet2': BetweenStreet2})
+#
+#     markerIds = [x['StreetMarker'] for x in markers]
+#     spaceData = db.bayData.find({"properties.marker_id" :{"$in": markerIds}})
+#     spacePolys = []
+#
+#     for space in spaceData:
+#         coords = [(p[0], p[1]) for p in space['geometry']['coordinates'][0][0]]
+#         spacePolys.append(coords)
+#
+#     return(spacePolys)
 
 def findCloseBlocks(point, meters, client):
     db = client['parking']
