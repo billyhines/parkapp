@@ -1,8 +1,11 @@
 from flask import Flask, render_template, jsonify, request
+from pymongo import MongoClient
 import geo_functions
 
 app = Flask(__name__)
 app.secret_key = 'super secret'
+
+client = MongoClient()
 
 @app.route("/address-point", methods=['POST'])
 def get_user_point():
@@ -31,13 +34,13 @@ def get_parking_data():
 
     try:
         user_point = geo_functions.geocode_address(address)
-        closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150)
+        closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150, client)
     except AttributeError as e:
         return jsonify({"message": e.message}), 400
 
 
     features.extend(closeBlocks)
-    featuresWithPrediction = geo_functions.getBlockAvailability(features, time)
+    featuresWithPrediction = geo_functions.getBlockAvailability(features, time, client)
 
     return jsonify(featuresWithPrediction)
 

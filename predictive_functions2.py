@@ -4,8 +4,6 @@ import pandas as pd
 from pymongo import MongoClient
 
 def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow, client):
-
-    #client = MongoClient()
     db = client['parking']
 
     # get a list of the deviceIds
@@ -63,8 +61,6 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
                 totalMinutes = totalMinutes + np.timedelta64(timeChecks[i+1] - timeChecks[i], 's').astype(int)/60.
                 if len(df[(df['ArrivalTime'] <= timeChecks[i]) & (df['DepartureTime'] > timeChecks[i]) & (df['VehiclePresent'] == 0)]) > 0:
                     openMinutes = openMinutes + np.timedelta64(timeChecks[i+1] - timeChecks[i], 's').astype(int)/60.
-
-    #client.close()
 
     if totalMinutes == 0:
         return(0)

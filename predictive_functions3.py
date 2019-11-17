@@ -4,14 +4,12 @@ import pandas as pd
 from pymongo import MongoClient
 
 def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client):
-    #client = MongoClient()
     db = client['parking']
 
     # get a list of the deviceIds - .086
     allStreetNames = [x for x in np.unique(blocks['StreetName'])]
     allBetweenStreet1 = [x for x in np.unique(blocks['BetweenStreet1'])]
     allBetweenStreet2 = [x for x in np.unique(blocks['BetweenStreet2'])]
-
 
     deviceIdsForBlock =  db.deviceToSpaceAndBlock.find({'StreetName': {'$in': allStreetNames},
                                                         'BetweenStreet1': {'$in': allBetweenStreet1},
@@ -88,7 +86,5 @@ def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, 
         predictions.append(prediction)
         #blocksPredictions.append((blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], prediction))
 
-
-    #client.close()
     #blocksPredictions = pd.DataFrame(blocksPredictions, columns=('StreetName', 'BetweenStreet1', 'BetweenStreet2', 'prediction'))
     return(predictions)

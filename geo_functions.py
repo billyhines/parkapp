@@ -24,7 +24,6 @@ def geocode_address(locationQuery):
     return(result)
 
 def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
-    client = MongoClient()
     db = client['parking']
 
     markers =  db.deviceToSpaceAndBlock.find({'StreetName': StreetName,
@@ -39,11 +38,9 @@ def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
         coords = [(p[0], p[1]) for p in space['geometry']['coordinates'][0][0]]
         spacePolys.append(coords)
 
-    client.close()
     return(spacePolys)
 
-def findCloseBlocks(point, meters):
-    client = MongoClient()
+def findCloseBlocks(point, meters, client):
     db = client['parking']
 
     # find close markers
@@ -118,11 +115,9 @@ def findCloseBlocks(point, meters):
                                     "description": blockMarkers['description'][i]
                                  }})
 
-    client.close()
     return(blocksWithCoords)
 
-def getBlockAvailability(features, time):
-    client = MongoClient()
+def getBlockAvailability(features, time, client):
     db = client['parking']
 
     blocks = []
@@ -163,5 +158,4 @@ def getBlockAvailability(features, time):
         features[i]['properties']['prediction'] = tmpPrediction
         features[i]['properties']['isOpen'] = tmpIsOpen
 
-    client.close()
     return(features)
