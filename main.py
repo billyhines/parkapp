@@ -26,6 +26,7 @@ def get_user_point():
 
 @app.route("/nearby-parking", methods=['POST'])
 def get_parking_data():
+    client = MongoClient()
 
     address = request.get_json()['address']
     time = request.get_json()['time']
@@ -41,6 +42,8 @@ def get_parking_data():
 
     features.extend(closeBlocks)
     featuresWithPrediction = geo_functions.getBlockAvailability(features, time, client)
+
+    client.close()
 
     return jsonify(featuresWithPrediction)
 
