@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import datetime
 from dateutil.parser import parse
-import predictive_functions
+import predictive_functions2
 
 def geocode_address(locationQuery):
     geolocator = Nominatim(user_agent="parkApp")
@@ -23,22 +23,70 @@ def geocode_address(locationQuery):
 
     return(result)
 
-# def getBlockPolygon(StreetName, BetweenStreet1, BetweenStreet2):
-#     db = client['parking']
-#
-#     markers =  db.deviceToSpaceAndBlock.find({'StreetName': StreetName,
-#                                               'BetweenStreet1': BetweenStreet1,
-#                                               'BetweenStreet2': BetweenStreet2})
-#
-#     markerIds = [x['StreetMarker'] for x in markers]
-#     spaceData = db.bayData.find({"properties.marker_id" :{"$in": markerIds}})
-#     spacePolys = []
-#
-#     for space in spaceData:
-#         coords = [(p[0], p[1]) for p in space['geometry']['coordinates'][0][0]]
-#         spacePolys.append(coords)
-#
-#     return(spacePolys)
+def findCloseBlocks2(point, meters, client):
+    db = client['parking']
+
+    #find close blocks
+    closeBays = db.bayData.aggregate([
+                                    {'$geoNear': {
+                                        'near': { 'type': 'Point', 'coordinates':[point[0], point[1]]},
+                                        'key': 'geometry',
+                                        'distanceField': 'dist.calculated',
+                                        '$maxDistance': meters,
+                                        'query': { 'properties.marker_id': {'$ne':None} },
+                                        }},
+                                    {'$lookup': {
+                                        'from': 'deviceToSpaceAndBlock',
+                                        'localField': 'properties.marker_id',
+                                        'foreignField': 'StreetMarker',
+                                        'as': 'markersToBlocks'}},
+                                    {"$unwind": "$markersToBlocks" },
+                                    {'$project': { 'street_concat': {'$concat': ['$markersToBlocks.StreetName',
+                                                                                 '$markersToBlocks.BetweenStreet1',
+                                                                                 '$markersToBlocks.BetweenStreet2']}}}])
+
+    closeBlocks = [x['street_concat'] for x in closeBays]
+    closeBlocks = list(np.unique(closeBlocks))
+
+    # Check to make sure that there are blocks inside the radius
+    if len(closeBlocks) == 0:
+        raise AttributeError('No parking bays found near specified point')
+
+    # find the coordinates associate with these blocks
+    markersCoords = db.deviceToSpaceAndBlock.aggregate([
+                                                    {'$project': {
+                                                        'castedStreetName': {'$substrBytes': [ '$StreetName', 0, 128 ]},
+                                                        'castedBetweenStreet1': {'$substrBytes': [ '$BetweenStreet1', 0, 128 ]},
+                                                        'castedBetweenStreet2': {'$substrBytes': [ '$BetweenStreet2', 0, 128 ]},
+                                                        'StreetMarker': 1}},
+                                                    {'$project':{'street_concat':{'$concat':["$castedStreetName","$castedBetweenStreet1","$castedBetweenStreet2"]},
+                                                                 'StreetMarker': 1,
+                                                                 'castedStreetName': 1,
+                                                                 'castedBetweenStreet1': 1,
+                                                                 'castedBetweenStreet2':1}},
+                                                    {'$match':{'street_concat':{'$in': closeBlocks}}},
+                                                    {'$lookup': {
+                                                        'from': 'bayData',
+                                                        'localField': 'StreetMarker',
+                                                        'foreignField': 'properties.marker_id',
+                                                        'as': 'bayData'}}
+                                                    ])
+    # format the output
+    blocksWithCoords = []
+    for entry in markersCoords:
+        if len(entry['bayData']) == 0:
+            continue
+        blocksWithCoords.append({"type": "Feature",
+                                 "geometry": {
+                                    "type": "MultiPolygon",
+                                    "coordinates": entry['bayData'][0]['geometry']['coordinates']},
+                                 "properties": {
+                                    "StreetName": entry['castedStreetName'],
+                                    "BetweenStreet1": entry['castedBetweenStreet1'],
+                                    "BetweenStreet2": entry['castedBetweenStreet2'],
+                                    "description": entry['bayData'][0]['properties']['rd_seg_dsc']
+                                 }})
+    return(blocksWithCoords)
 
 def findCloseBlocks(point, meters, client):
     db = client['parking']
@@ -99,6 +147,7 @@ def findCloseBlocks(point, meters, client):
     blockMarkers = blockMarkers.merge(markerCoords, how = 'left', right_on = 'marker_id', left_on = 'marker_id')
     blockMarkers.dropna(inplace=True)
     blockMarkers.reset_index(inplace=True)
+
     # create dict for output
 
     blocksWithCoords = []
@@ -139,8 +188,8 @@ def getBlockAvailability(features, time, client):
 
     predictions = []
     for i in range(0, len(blocks)):
-        prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
-        #prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
+        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
+        prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
         predictions.append(prediction)
 
     #predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client)
