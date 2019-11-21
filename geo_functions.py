@@ -92,77 +92,71 @@ def findCloseBlocks(point, meters, client):
     db = client['parking']
 
     # find close markers
-    closeBays = db.bayData.find({  'geometry': {
-                                     '$near': {
-                                       '$geometry': {
-                                          'type': "Point" ,
-                                          'coordinates': [point[0], point[1]]
-                                       },
-                                       '$maxDistance': meters
-                                     }
-                                   }
-                                })
+    closeMarkerCur = db.bayData.find({'geometry': {
+                                        '$near': {
+                                            '$geometry': {
+                                                'type': "Point" ,
+                                                'coordinates': [point[0], point[1]]},
+                                            '$maxDistance': meters}}
+                                       })
 
-    markerIds = [x['properties']['marker_id'] for x in closeBays]
-    markerIds = np.unique(markerIds)
-    markerIds = list(filter(None, markerIds))
+    closeMarkers = [x['properties']['marker_id'] for x in closeMarkerCur]
+    closeMarkers = np.unique(closeMarkers)
+    closeMarkers = list(filter(None, closeMarkers))
 
-    if len(markerIds) == 0:
+    # check to make sure that there are spaces close to the point of interest
+    if len(closeMarkers) == 0:
         raise AttributeError('No parking bays found near specified point')
 
     # find blocks with close markers
-    blocksAndMarkers =  db.deviceToSpaceAndBlock.find({'StreetMarker': {'$in': markerIds}})
-    blocksAndMarkers = pd.DataFrame(list(blocksAndMarkers))
-    blocks = blocksAndMarkers[['StreetName', 'BetweenStreet1', 'BetweenStreet2']].drop_duplicates()
-    blocks.reset_index(inplace=True)
+    closeBlocksCur =  db.deviceToSpaceAndBlock.find({'StreetMarker': {'$in': closeMarkers}})
+    closeBlocks = []
+    for entry in closeBlocksCur:
+        closeBlocks.append({'StreetName': entry['StreetName'],
+                            'BetweenStreet1': entry['BetweenStreet1'],
+                            'BetweenStreet2': entry['BetweenStreet2']})
+    closeBlocks = pd.DataFrame(closeBlocks)
+    closeBlocks.drop_duplicates(inplace=True)
 
-    # find all markers within blocks
-    blockMarkers = []
-    for i in range(0, len(blocks)):
-        markersPerBlock = db.deviceToSpaceAndBlock.find({'StreetName': blocks['StreetName'][i],
-                                                         'BetweenStreet1': blocks['BetweenStreet1'][i],
-                                                         'BetweenStreet2':blocks['BetweenStreet2'][i]})
-        markersPerBlock = [x['StreetMarker']for x in markersPerBlock]
-        tmp = pd.DataFrame({'marker_id': np.unique(markersPerBlock)})
-        tmp['StreetName'] = blocks['StreetName'][i]
-        tmp['BetweenStreet1'] = blocks['BetweenStreet1'][i]
-        tmp['BetweenStreet2'] = blocks['BetweenStreet2'][i]
-        blockMarkers.append(tmp)
-    blockMarkers = pd.concat(blockMarkers, ignore_index = True)
+    # find all the markers within blocks
+    blocksWithAllMarkers = []
+    for index, row in closeBlocks.iterrows():
+        markersPerBlockCur = db.deviceToSpaceAndBlock.find({'StreetName': row['StreetName'],
+                                                            'BetweenStreet1': row['BetweenStreet1'],
+                                                            'BetweenStreet2':row['BetweenStreet2']})
+        for marker in markersPerBlockCur:
+            blocksWithAllMarkers.append({'StreetName': row['StreetName'],
+                                         'BetweenStreet1': row['BetweenStreet1'],
+                                         'BetweenStreet2': row['BetweenStreet2'],
+                                         'marker_id': marker['StreetMarker']})
+    blocksWithAllMarkers = pd.DataFrame(blocksWithAllMarkers)
+    blocksWithAllMarkers.drop_duplicates(inplace=True)
 
-    # find coords for all markers
-    markerCoords = db.bayData.find({"properties.marker_id" :{"$in": [x for x in blockMarkers['marker_id']]}})
+    # find coordinatess for all markers
+    markerCoordsCur = db.bayData.find({"properties.marker_id" :{"$in": [x for x in blocksWithAllMarkers['marker_id']]}})
 
-    coords = []
-    ids = []
-    desc = []
-    for marker in markerCoords:
-        coords.append(marker['geometry']['coordinates'])
-        ids.append(marker['properties']['marker_id'])
-        desc.append(marker['properties']['rd_seg_dsc'])
+    markerCoords = []
+    for marker in markerCoordsCur:
+        markerCoords.append({'marker_id': marker['properties']['marker_id'],
+                             'coordinates': marker['geometry']['coordinates'],
+                             'description': marker['properties']['rd_seg_dsc']})
+    markerCoords = pd.DataFrame(markerCoords)
 
-    markerCoords = pd.DataFrame({'marker_id':ids,
-                                 'coordinates': coords,
-                                 'description': desc})
-    blockMarkers = blockMarkers.merge(markerCoords, how = 'left', right_on = 'marker_id', left_on = 'marker_id')
-    blockMarkers.dropna(inplace=True)
-    blockMarkers.reset_index(inplace=True)
+    blocksWithAllMarkers = blocksWithAllMarkers.merge(markerCoords, how = 'left', right_on = 'marker_id', left_on = 'marker_id')
+    blocksWithAllMarkers.dropna(inplace=True)
 
     # create dict for output
-
     blocksWithCoords = []
-
-    for i in range(0, len(blockMarkers)):
+    for index, row in blocksWithAllMarkers.iterrows():
         blocksWithCoords.append({"type": "Feature",
                                  "geometry": {
                                     "type": "MultiPolygon",
-                                    "coordinates": blockMarkers['coordinates'][i]},
+                                    "coordinates": row['coordinates']},
                                  "properties": {
-                                    "StreetName": blockMarkers['StreetName'][i],
-                                    "BetweenStreet1": blockMarkers['BetweenStreet1'][i],
-                                    "BetweenStreet2": blockMarkers['BetweenStreet2'][i],
-                                    "description": blockMarkers['description'][i]
-                                 }})
+                                    "StreetName": row['StreetName'],
+                                    "BetweenStreet1": row['BetweenStreet1'],
+                                    "BetweenStreet2": row['BetweenStreet2'],
+                                    "description": row['description']}})
 
     return(blocksWithCoords)
 
