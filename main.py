@@ -37,8 +37,8 @@ def get_parking_data():
     except AttributeError as e:
         return jsonify({"message": e.message}), 400
 
-
-    features.extend(closeBlocks)
+    blockCoords = geo_functions.findBlockCoordinates(closeBlocks, client)
+    features.extend(blockCoords)
     featuresWithPrediction = geo_functions.getBlockAvailability(features, time, client)
 
     client.close()

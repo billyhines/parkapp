@@ -117,10 +117,14 @@ def findCloseBlocks(point, meters, client):
                             'BetweenStreet2': entry['BetweenStreet2']})
     closeBlocks = pd.DataFrame(closeBlocks)
     closeBlocks.drop_duplicates(inplace=True)
+    return(closeBlocks)
+
+def findBlockCoordinates(block_df, client):
+    db = client['parking']
 
     # find all the markers within blocks
     blocksWithAllMarkers = []
-    for index, row in closeBlocks.iterrows():
+    for index, row in block_df.iterrows():
         markersPerBlockCur = db.deviceToSpaceAndBlock.find({'StreetName': row['StreetName'],
                                                             'BetweenStreet1': row['BetweenStreet1'],
                                                             'BetweenStreet2':row['BetweenStreet2']})
@@ -157,7 +161,6 @@ def findCloseBlocks(point, meters, client):
                                     "BetweenStreet1": row['BetweenStreet1'],
                                     "BetweenStreet2": row['BetweenStreet2'],
                                     "description": row['description']}})
-
     return(blocksWithCoords)
 
 def getBlockAvailability(features, time, client):
