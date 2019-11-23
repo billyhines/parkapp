@@ -5,8 +5,6 @@ import geo_functions
 app = Flask(__name__)
 app.secret_key = 'super secret'
 
-client = MongoClient()
-
 @app.route("/address-point", methods=['POST'])
 def get_user_point():
     address = request.get_json()['address']

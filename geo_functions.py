@@ -142,10 +142,10 @@ def findCloseBlocks(point, meters, client):
                              'description': marker['properties']['rd_seg_dsc']})
     markerCoords = pd.DataFrame(markerCoords)
 
+    # join in the coordinates then format for output
     blocksWithAllMarkers = blocksWithAllMarkers.merge(markerCoords, how = 'left', right_on = 'marker_id', left_on = 'marker_id')
     blocksWithAllMarkers.dropna(inplace=True)
 
-    # create dict for output
     blocksWithCoords = []
     for index, row in blocksWithAllMarkers.iterrows():
         blocksWithCoords.append({"type": "Feature",
@@ -164,12 +164,13 @@ def getBlockAvailability(features, time, client):
     db = client['parking']
 
     blocks = []
-    for i in range(0, len(features)):
-        blocks.append((features[i]['properties']['StreetName'], features[i]['properties']['BetweenStreet1'], features[i]['properties']['BetweenStreet2']))
+    for spot in features:
+        blocks.append((spot['properties']['StreetName'],
+                       spot['properties']['BetweenStreet1'],
+                       spot['properties']['BetweenStreet2']))
 
     blocks = pd.DataFrame(blocks, columns=('StreetName', 'BetweenStreet1', 'BetweenStreet2'))
     blocks.drop_duplicates(inplace = True)
-    blocks.reset_index(inplace = True)
 
     if time == "":
         timestamp = datetime.datetime.now()
@@ -181,24 +182,28 @@ def getBlockAvailability(features, time, client):
     timewindow = 50
 
     predictions = []
-    for i in range(0, len(blocks)):
-        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
-        prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], timestamp, lookbackWeeks, timewindow, client)
+    for index, row in blocks.iterrows():
+        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(row['StreetName'], row['BetweenStreet1'], row['BetweenStreet2'],
+        #                                                                            timestamp, lookbackWeeks,timewindow, client)
+        prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(row['StreetName'], row['BetweenStreet1'], row['BetweenStreet2'],
+                                                                                     timestamp, lookbackWeeks,timewindow, client)
         predictions.append(prediction)
 
     #predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client)
 
     blocks['prediction'] = predictions
-    blocks['isOpen'] = np.where(blocks['prediction']>=0.95, 'yes', 'no')
 
-    for i in range(0, len(features)):
-        tmpStreetName = features[i]['properties']['StreetName']
-        tmpBetweenStreet1 = features[i]['properties']['BetweenStreet1']
-        tmpBetweenStreet2 = features[i]['properties']['BetweenStreet2']
-        tmpPrediction = blocks[(blocks['StreetName'] == tmpStreetName) & (blocks['BetweenStreet1'] == tmpBetweenStreet1) & (blocks['BetweenStreet2'] == tmpBetweenStreet2)]['prediction'].values[0]
-        tmpIsOpen = blocks[(blocks['StreetName'] == tmpStreetName) & (blocks['BetweenStreet1'] == tmpBetweenStreet1) & (blocks['BetweenStreet2'] == tmpBetweenStreet2)]['isOpen'].values[0]
+    for spot in features:
+        tmpPrediction = blocks[(blocks['StreetName'] == spot['properties']['StreetName']) &
+                               (blocks['BetweenStreet1'] == spot['properties']['BetweenStreet1']) &
+                               (blocks['BetweenStreet2'] == spot['properties']['BetweenStreet2'])]['prediction'].values[0]
 
-        features[i]['properties']['prediction'] = tmpPrediction
-        features[i]['properties']['isOpen'] = tmpIsOpen
+        if tmpPrediction >= 0.95:
+            tmpIsOpen = 'yes'
+        else:
+            tmpIsOpen = 'no'
+
+        spot['properties']['prediction'] = tmpPrediction
+        spot['properties']['isOpen'] = tmpIsOpen
 
     return(features)
