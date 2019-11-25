@@ -10,11 +10,11 @@ import predictive_functions2
 def geocode_address(locationQuery):
     """Geocode the address. Return the coordinates and clean address."""
     geolocator = Nominatim(user_agent="parkApp")
-
     location = geolocator.geocode(locationQuery)
 
+    #
     if location == None:
-        raise AttributeError('Address could not be geocoded')
+        raise ValueError('Address could not be geocoded')
 
     coordinates = [location.longitude, location.latitude]
     cleanAddress = location.address
@@ -109,7 +109,7 @@ def findCloseBlocks(point, meters, client):
 
     # check to make sure that there are spaces close to the point of interest
     if len(closeMarkers) == 0:
-        raise AttributeError('No parking bays found near specified point')
+        raise ValueError('No parking bays found near specified point')
 
     # find blocks with close markers
     closeBlocksCur =  db.deviceToSpaceAndBlock.find({'StreetMarker': {'$in': closeMarkers}})

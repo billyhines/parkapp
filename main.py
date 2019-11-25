@@ -34,7 +34,7 @@ def get_parking_data():
     try:
         user_point = geo_functions.geocode_address(address)
         closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 150, client)
-    except AttributeError as e:
+    except ValueError as e:
         return jsonify({"message": e.message}), 400
 
     blockCoords = geo_functions.findBlockCoordinates(closeBlocks, client)
