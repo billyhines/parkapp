@@ -9,7 +9,7 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
     """Return the percent of time a block is open in it's past."""
     db = client['parking']
 
-    # get a list of the deviceIds
+    # Get a list of the deviceIds
     deviceList =  db.deviceToSpaceAndBlock.find({'StreetName': StreetName,
                                                  'BetweenStreet1': BetweenStreet1,
                                                  'BetweenStreet2': BetweenStreet2})
@@ -18,14 +18,14 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
     deviceList = [int(x) for x in deviceList]
     #deviceList = np.unique(deviceList)
 
-    #create list of timestamps to check
+    # Create list of timestamps to check
     timeWindows = []
     for i in range(1, lookbackWeeks+1):
         windowOpen = timestamp - datetime.timedelta(days = 7 * i) - datetime.timedelta(minutes = timewindow/2)
         windowClose = timestamp - datetime.timedelta(days = 7 * i) + datetime.timedelta(minutes = timewindow/2)
         timeWindows.append([windowOpen, windowClose])
 
-    # intialize time counter variables
+    # Intialize time counter variables
     openMinutes = 0
     totalMinutes = 0
 
@@ -37,7 +37,7 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
                                       batch_size=1000) for window in timeWindows]
 
 
-    # Check the space for each of the windows
+    # Check the space for each of the windows and keep track of available time and checked time
     for finder,window in itertools.izip(finderlist,timeWindows):
 
         df = []

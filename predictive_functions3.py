@@ -7,7 +7,7 @@ def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, 
     """Return the percent of time a block is open in its past."""
     db = client['parking']
 
-    # get a list of the deviceIds - .086
+    # Get a list of the deviceIds - .086
     allStreetNames = [x for x in np.unique(blocks['StreetName'])]
     allBetweenStreet1 = [x for x in np.unique(blocks['BetweenStreet1'])]
     allBetweenStreet2 = [x for x in np.unique(blocks['BetweenStreet2'])]
@@ -20,7 +20,7 @@ def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, 
     deviceList = [int(x) for x in deviceIdsForBlock['DeviceId']]
 
 
-    #create list of timestamps to check
+    # Create list of timestamps to check
     timeWindows = []
     for i in range(1, lookbackWeeks+1):
         windowOpen = timestamp - datetime.timedelta(days = 7 * i) - datetime.timedelta(minutes = timewindow/2)
@@ -31,12 +31,12 @@ def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, 
     maxTime = timeWindows[0][1]
     minTime = timeWindows[lookbackWeeks-1][0]
 
-    # One BFQ
+    # Query for all the blocks over the time of interest
     finder = db.sensorData.find({'DeviceId': {'$in': deviceList},
                                  'ArrivalTime': {'$lte': maxTime},
                                  'DepartureTime': {'$gte': minTime}})
 
-    #Find all events that find within a window, trim them, and label them
+    # Find all events that find within a window, trim them, and label them
     eventsInWindows = []
 
     for event in finder:
@@ -53,8 +53,7 @@ def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, 
     eventsInWindows = eventsInWindows.astype({"Vehicle Present": int})
     eventsInWindows.rename(columns={"Vehicle Present": "VehiclePresent"}, inplace=True)
 
-    #Loop over the blocks?
-    #blocksPredictions = []
+
     predictions = []
     for i in range(0, len(blocks)):
 
@@ -85,7 +84,5 @@ def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, 
             prediction = float(openMinutes) / (totalMinutes)
 
         predictions.append(prediction)
-        #blocksPredictions.append((blocks['StreetName'][i], blocks['BetweenStreet1'][i], blocks['BetweenStreet2'][i], prediction))
 
-    #blocksPredictions = pd.DataFrame(blocksPredictions, columns=('StreetName', 'BetweenStreet1', 'BetweenStreet2', 'prediction'))
     return(predictions)

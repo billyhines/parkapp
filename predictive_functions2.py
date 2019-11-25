@@ -7,7 +7,7 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
     """Return the percent of time a block is open in it's past."""
     db = client['parking']
 
-    # get a list of the deviceIds
+    # Get a list of the deviceIds
     deviceList =  db.deviceToSpaceAndBlock.find({'StreetName': StreetName,
                                                  'BetweenStreet1': BetweenStreet1,
                                                  'BetweenStreet2': BetweenStreet2})
@@ -16,7 +16,7 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
     deviceList = [int(x) for x in deviceList]
     #deviceList = np.unique(deviceList)
 
-    #create list of timestamps to check
+    # Create list of timestamps to check
     timeWindows = []
     for i in range(1, lookbackWeeks+1):
         windowOpen = timestamp - datetime.timedelta(days = 7 * i) - datetime.timedelta(minutes = timewindow/2)
@@ -29,12 +29,12 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
     maxTime = timeWindows[0][1]
     minTime = timeWindows[lookbackWeeks-1][0]
 
-    # One BFQ
+    # Run a single query for all of the times of interest
     finder = db.sensorData.find({'ArrivalTime': {'$lte': maxTime},
                                  'DepartureTime': {'$gte': minTime},
                                  'DeviceId': {'$in': deviceList}})
 
-    #Find all events that find within a window, trim them, and label them
+    # Find all events that find within a window, trim them, and label them
     eventsInWindows = []
 
     for event in finder:

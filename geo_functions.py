@@ -12,7 +12,7 @@ def geocode_address(locationQuery):
     geolocator = Nominatim(user_agent="parkApp")
     location = geolocator.geocode(locationQuery)
 
-    #
+    # Check for geocoding success
     if location == None:
         raise ValueError('Address could not be geocoded')
 
@@ -28,7 +28,7 @@ def findCloseBlocks2(point, meters, client):
     """Return the blocks within the given radius to the point."""
     db = client['parking']
 
-    #find close blocks
+    # Find close blocks
     closeBays = db.bayData.aggregate([
                                     {'$geoNear': {
                                         'near': { 'type': 'Point', 'coordinates':[point[0], point[1]]},
@@ -54,7 +54,7 @@ def findCloseBlocks2(point, meters, client):
     if len(closeBlocks) == 0:
         raise AttributeError('No parking bays found near specified point')
 
-    # find the coordinates associate with these blocks
+    # Find the coordinates associate with these blocks
     markersCoords = db.deviceToSpaceAndBlock.aggregate([
                                                     {'$project': {
                                                         'castedStreetName': {'$substrBytes': [ '$StreetName', 0, 128 ]},
@@ -73,7 +73,7 @@ def findCloseBlocks2(point, meters, client):
                                                         'foreignField': 'properties.marker_id',
                                                         'as': 'bayData'}}
                                                     ])
-    # format the output
+    # Format the output
     blocksWithCoords = []
     for entry in markersCoords:
         if len(entry['bayData']) == 0:
@@ -94,7 +94,7 @@ def findCloseBlocks(point, meters, client):
     """Return the blocks within the given radius to the point."""
     db = client['parking']
 
-    # find close markers
+    # Find markers within the radius
     closeMarkerCur = db.bayData.find({'geometry': {
                                         '$near': {
                                             '$geometry': {
@@ -107,11 +107,11 @@ def findCloseBlocks(point, meters, client):
     closeMarkers = np.unique(closeMarkers)
     closeMarkers = list(filter(None, closeMarkers))
 
-    # check to make sure that there are spaces close to the point of interest
+    # Check to make sure that there are spaces close to the point of interest
     if len(closeMarkers) == 0:
         raise ValueError('No parking bays found near specified point')
 
-    # find blocks with close markers
+    # Find blocks associated with these close markers
     closeBlocksCur =  db.deviceToSpaceAndBlock.find({'StreetMarker': {'$in': closeMarkers}})
     closeBlocks = []
     for entry in closeBlocksCur:
@@ -126,7 +126,7 @@ def findBlockCoordinates(block_df, client):
     """Return the space marker ids and their coordinates for markers within the given blocks."""
     db = client['parking']
 
-    # find all the markers within blocks
+    # Find all the markers within blocks
     blocksWithAllMarkers = []
     for index, row in block_df.iterrows():
         markersPerBlockCur = db.deviceToSpaceAndBlock.find({'StreetName': row['StreetName'],
@@ -140,7 +140,7 @@ def findBlockCoordinates(block_df, client):
     blocksWithAllMarkers = pd.DataFrame(blocksWithAllMarkers)
     blocksWithAllMarkers.drop_duplicates(inplace=True)
 
-    # find coordinatess for all markers
+    # Find coordinatess for all markers
     markerCoordsCur = db.bayData.find({"properties.marker_id" :{"$in": [x for x in blocksWithAllMarkers['marker_id']]}})
 
     markerCoords = []
@@ -150,7 +150,7 @@ def findBlockCoordinates(block_df, client):
                              'description': marker['properties']['rd_seg_dsc']})
     markerCoords = pd.DataFrame(markerCoords)
 
-    # join in the coordinates then format for output
+    # Join in the coordinates then format for output
     blocksWithAllMarkers = blocksWithAllMarkers.merge(markerCoords, how = 'left', right_on = 'marker_id', left_on = 'marker_id')
     blocksWithAllMarkers.dropna(inplace=True)
 
@@ -171,6 +171,7 @@ def getBlockAvailability(features, time, client):
     """Return the predicted availablitlity for each block at the given time."""
     db = client['parking']
 
+    # Find the unique blocks
     blocks = []
     for spot in features:
         blocks.append((spot['properties']['StreetName'],
@@ -180,6 +181,7 @@ def getBlockAvailability(features, time, client):
     blocks = pd.DataFrame(blocks, columns=('StreetName', 'BetweenStreet1', 'BetweenStreet2'))
     blocks.drop_duplicates(inplace = True)
 
+    # Use the current time if the user did not specify a time
     if time == "":
         timestamp = datetime.datetime.now()
     else:
@@ -189,6 +191,7 @@ def getBlockAvailability(features, time, client):
     lookbackWeeks = 10
     timewindow = 50
 
+    # Run the predictive function for each of the blocks
     predictions = []
     for index, row in blocks.iterrows():
         #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(row['StreetName'], row['BetweenStreet1'], row['BetweenStreet2'],
@@ -201,6 +204,7 @@ def getBlockAvailability(features, time, client):
 
     blocks['prediction'] = predictions
 
+    # Format the output
     for spot in features:
         tmpPrediction = blocks[(blocks['StreetName'] == spot['properties']['StreetName']) &
                                (blocks['BetweenStreet1'] == spot['properties']['BetweenStreet1']) &
