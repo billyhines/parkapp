@@ -8,6 +8,7 @@ from dateutil.parser import parse
 import predictive_functions2
 
 def geocode_address(locationQuery):
+    """Geocode the address. Return the coordinates and clean address."""
     geolocator = Nominatim(user_agent="parkApp")
 
     location = geolocator.geocode(locationQuery)
@@ -24,6 +25,7 @@ def geocode_address(locationQuery):
     return(result)
 
 def findCloseBlocks2(point, meters, client):
+    """Return the blocks within the given radius to the point."""
     db = client['parking']
 
     #find close blocks
@@ -89,6 +91,7 @@ def findCloseBlocks2(point, meters, client):
     return(blocksWithCoords)
 
 def findCloseBlocks(point, meters, client):
+    """Return the blocks within the given radius to the point."""
     db = client['parking']
 
     # find close markers
@@ -120,6 +123,7 @@ def findCloseBlocks(point, meters, client):
     return(closeBlocks)
 
 def findBlockCoordinates(block_df, client):
+    """Return the space marker ids and their coordinates for markers within the given blocks."""
     db = client['parking']
 
     # find all the markers within blocks
@@ -164,6 +168,7 @@ def findBlockCoordinates(block_df, client):
     return(blocksWithCoords)
 
 def getBlockAvailability(features, time, client):
+    """Return the predicted availablitlity for each block at the given time."""
     db = client['parking']
 
     blocks = []

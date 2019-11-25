@@ -4,6 +4,7 @@ import pandas as pd
 from pymongo import MongoClient
 
 def historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client):
+    """Return the percent of time a block is open in its past."""
     db = client['parking']
 
     # get a list of the deviceIds - .086
