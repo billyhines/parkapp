@@ -1,6 +1,5 @@
 from geopy.geocoders import Nominatim
 from pymongo import MongoClient
-from shapely.geometry import MultiPolygon, Polygon, Point
 import numpy as np
 import pandas as pd
 import datetime
@@ -23,72 +22,6 @@ def geocode_address(locationQuery):
               "coordinates": coordinates}
 
     return(result)
-
-def findCloseBlocks2(point, meters, client):
-    """Return the blocks within the given radius to the point."""
-    db = client['parking']
-
-    # Find close blocks
-    closeBays = db.bayData.aggregate([
-                                    {'$geoNear': {
-                                        'near': { 'type': 'Point', 'coordinates':[point[0], point[1]]},
-                                        'key': 'geometry',
-                                        'distanceField': 'dist.calculated',
-                                        '$maxDistance': meters,
-                                        'query': { 'properties.marker_id': {'$ne':None} },
-                                        }},
-                                    {'$lookup': {
-                                        'from': 'deviceToSpaceAndBlock',
-                                        'localField': 'properties.marker_id',
-                                        'foreignField': 'StreetMarker',
-                                        'as': 'markersToBlocks'}},
-                                    {"$unwind": "$markersToBlocks" },
-                                    {'$project': { 'street_concat': {'$concat': ['$markersToBlocks.StreetName',
-                                                                                 '$markersToBlocks.BetweenStreet1',
-                                                                                 '$markersToBlocks.BetweenStreet2']}}}])
-
-    closeBlocks = [x['street_concat'] for x in closeBays]
-    closeBlocks = list(np.unique(closeBlocks))
-
-    # Check to make sure that there are blocks inside the radius
-    if len(closeBlocks) == 0:
-        raise AttributeError('No parking bays found near specified point')
-
-    # Find the coordinates associate with these blocks
-    markersCoords = db.deviceToSpaceAndBlock.aggregate([
-                                                    {'$project': {
-                                                        'castedStreetName': {'$substrBytes': [ '$StreetName', 0, 128 ]},
-                                                        'castedBetweenStreet1': {'$substrBytes': [ '$BetweenStreet1', 0, 128 ]},
-                                                        'castedBetweenStreet2': {'$substrBytes': [ '$BetweenStreet2', 0, 128 ]},
-                                                        'StreetMarker': 1}},
-                                                    {'$project':{'street_concat':{'$concat':["$castedStreetName","$castedBetweenStreet1","$castedBetweenStreet2"]},
-                                                                 'StreetMarker': 1,
-                                                                 'castedStreetName': 1,
-                                                                 'castedBetweenStreet1': 1,
-                                                                 'castedBetweenStreet2':1}},
-                                                    {'$match':{'street_concat':{'$in': closeBlocks}}},
-                                                    {'$lookup': {
-                                                        'from': 'bayData',
-                                                        'localField': 'StreetMarker',
-                                                        'foreignField': 'properties.marker_id',
-                                                        'as': 'bayData'}}
-                                                    ])
-    # Format the output
-    blocksWithCoords = []
-    for entry in markersCoords:
-        if len(entry['bayData']) == 0:
-            continue
-        blocksWithCoords.append({"type": "Feature",
-                                 "geometry": {
-                                    "type": "MultiPolygon",
-                                    "coordinates": entry['bayData'][0]['geometry']['coordinates']},
-                                 "properties": {
-                                    "StreetName": entry['castedStreetName'],
-                                    "BetweenStreet1": entry['castedBetweenStreet1'],
-                                    "BetweenStreet2": entry['castedBetweenStreet2'],
-                                    "description": entry['bayData'][0]['properties']['rd_seg_dsc']
-                                 }})
-    return(blocksWithCoords)
 
 def findCloseBlocks(point, meters, client):
     """Return the blocks within the given radius to the point."""
@@ -194,13 +127,9 @@ def getBlockAvailability(features, time, client):
     # Run the predictive function for each of the blocks
     predictions = []
     for index, row in blocks.iterrows():
-        #prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(row['StreetName'], row['BetweenStreet1'], row['BetweenStreet2'],
-        #                                                                            timestamp, lookbackWeeks,timewindow, client)
         prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(row['StreetName'], row['BetweenStreet1'], row['BetweenStreet2'],
                                                                                      timestamp, lookbackWeeks,timewindow, client)
         predictions.append(prediction)
-
-    #predictions = predictive_functions3.historicalUtilizationPercentageWithIgnore(blocks, timestamp, lookbackWeeks, timewindow, client)
 
     blocks['prediction'] = predictions
 
