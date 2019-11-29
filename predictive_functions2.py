@@ -4,7 +4,24 @@ import pandas as pd
 from pymongo import MongoClient
 
 def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, BetweenStreet2, timestamp, lookbackWeeks, timewindow, client):
-    """Return the percent of time a block is open in it's past."""
+    """Finds the predicted availablity for each block by looking at the previous utilization on the same day types and times
+
+    :param StreetName: The Street Name associated with the block.
+    :type StreetName: srt.
+    :param BetweenStreet1: The intesecting street to the Street Name that defines one end of the block.
+    :type BetweenStreet1: srt.
+    :param BetweenStreet2: The intesecting street to the Street Name that defines the other end of the block.
+    :type BetweenStreet2: srt.
+    :param timestamp: The date and time for the prediction.
+    :type timestamp: datetime.
+    :param lookbackWeeks: The number of weeks to examine before the timestamp to form the prediction.
+    :type lookbackWeeks: int.
+    :param timewindow: The number of minutes to examine around the given timestamp at each week to form the prediction.
+    :type time: int.
+    :param client: The pymongo MongoClient instance.
+    :type meters: pymongo.mongo_client.MongoClient.
+    :returns:  float -- the percentage of examined time in which the block has at least one open parking bay.
+    """
     db = client['parking']
 
     # Get a list of the deviceIds

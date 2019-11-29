@@ -7,7 +7,13 @@ from dateutil.parser import parse
 import predictive_functions2
 
 def geocode_address(locationQuery):
-    """Geocode the address. Return the coordinates and clean address."""
+    """Lookup user inputted text with a Geolocation service. Return the clean address and coordinates.
+
+    :param locationQuery: The address entered by the user.
+    :type locationQuery: str.
+    :returns:  dict -- the cleaned address and coordinates in a dict.
+    :raises: ValueError
+    """
     geolocator = Nominatim(user_agent="parkApp")
     location = geolocator.geocode(locationQuery)
 
@@ -24,7 +30,17 @@ def geocode_address(locationQuery):
     return(result)
 
 def findCloseBlocks(point, meters, client):
-    """Return the blocks within the given radius to the point."""
+    """Find the blocks in the parking database that are within a given radius to a set of coordinates
+
+    :param point: The coordinates of the point.
+    :type point: list.
+    :param meters: The radius to search within in meters.
+    :type meters: int.
+    :param client: The pymongo MongoClient instance.
+    :type meters: pymongo.mongo_client.MongoClient.
+    :returns:  DataFrame -- the close blocks in a Pandas DataFrame.
+    :raises: ValueError
+    """
     db = client['parking']
 
     # Find markers within the radius
@@ -56,7 +72,14 @@ def findCloseBlocks(point, meters, client):
     return(closeBlocks)
 
 def findBlockCoordinates(block_df, client):
-    """Return the space marker ids and their coordinates for markers within the given blocks."""
+    """Return the space marker ids, their coordinates, and block information for markers within the given blocks.
+
+    :param block_df: The close blocks in a Pandas DataFrame.
+    :type point: DataFrame.
+    :param client: The pymongo MongoClient instance.
+    :type meters: pymongo.mongo_client.MongoClient.
+    :returns:  list -- a list of Dicts that have all the plotting information for the spaces.
+    """
     db = client['parking']
 
     # Find all the markers within blocks
@@ -101,7 +124,16 @@ def findBlockCoordinates(block_df, client):
     return(blocksWithCoords)
 
 def getBlockAvailability(features, time, client):
-    """Return the predicted availablitlity for each block at the given time."""
+    """Finds the predicted availablity for each block and appends the information to the list of
+
+    :param features: A list of Dicts that have all the plotting information for the spaces.
+    :type features: list.
+    :param time: The time entered by the user.
+    :type time: str.
+    :param client: The pymongo MongoClient instance.
+    :type meters: pymongo.mongo_client.MongoClient.
+    :returns:  list -- a list of Dicts that have all the plotting information for the spaces as well as the predictions.
+    """
     db = client['parking']
 
     # Find the unique blocks
