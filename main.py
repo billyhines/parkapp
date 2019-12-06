@@ -7,6 +7,14 @@ app.secret_key = 'super secret'
 
 @app.route("/address-and-parking", methods=['POST'])
 def get_address_and_parking():
+    """Geocode address and find close parking. Return GeoJSON along with availablity for parking spaces.
+
+    :param address: The address entered by the user.
+    :type address: str
+    :param time: The time entered by the user.
+    :type time: str
+    :returns:  GeoJSON -- the address and parking in a GeoJSON.
+    """
     client = MongoClient()
 
     address = request.get_json()['address']

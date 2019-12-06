@@ -10,7 +10,7 @@ def geocode_address(locationQuery):
     """Lookup user inputted text with a Geolocation service. Return the clean address and coordinates.
 
     :param locationQuery: The address entered by the user.
-    :type locationQuery: str.
+    :type locationQuery: str
     :returns:  dict -- the cleaned address and coordinates in a dict.
     :raises: ValueError
     """
@@ -33,11 +33,11 @@ def findCloseBlocks(point, meters, client):
     """Find the blocks in the parking database that are within a given radius to a set of coordinates
 
     :param point: The coordinates of the point.
-    :type point: list.
+    :type point: list
     :param meters: The radius to search within in meters.
-    :type meters: int.
+    :type meters: int
     :param client: The pymongo MongoClient instance.
-    :type meters: pymongo.mongo_client.MongoClient.
+    :type meters: pymongo.mongo_client.MongoClient
     :returns:  DataFrame -- the close blocks in a Pandas DataFrame.
     :raises: ValueError
     """
@@ -75,7 +75,7 @@ def findBlockCoordinates(block_df, client):
     """Return the space marker ids, their coordinates, and block information for markers within the given blocks.
 
     :param block_df: The close blocks in a Pandas DataFrame.
-    :type point: DataFrame.
+    :type point: DataFrame
     :param client: The pymongo MongoClient instance.
     :type meters: pymongo.mongo_client.MongoClient.
     :returns:  list -- a list of Dicts that have all the plotting information for the spaces.
@@ -127,9 +127,9 @@ def getBlockAvailability(features, time, client):
     """Finds the predicted availablity for each block and appends the information to the list of
 
     :param features: A list of Dicts that have all the plotting information for the spaces.
-    :type features: list.
+    :type features: list
     :param time: The time entered by the user.
-    :type time: str.
+    :type time: str
     :param client: The pymongo MongoClient instance.
     :type meters: pymongo.mongo_client.MongoClient.
     :returns:  list -- a list of Dicts that have all the plotting information for the spaces as well as the predictions.
