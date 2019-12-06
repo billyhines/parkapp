@@ -30,7 +30,7 @@ def geocode_address(locationQuery):
     return(result)
 
 def findCloseBlocks(point, meters, client):
-    """Find the blocks in the parking database that are within a given radius to a set of coordinates
+    """Find the blocks in the parking database that are within a given radius to a set of coordinates.
 
     :param point: The coordinates of the point.
     :type point: list
@@ -124,7 +124,7 @@ def findBlockCoordinates(block_df, client):
     return(blocksWithCoords)
 
 def getBlockAvailability(features, time, client):
-    """Finds the predicted availablity for each block and appends the information to the list of
+    """Find the predicted availablity for each block and append the information to the list of blocks.
 
     :param features: A list of Dicts that have all the plotting information for the spaces.
     :type features: list
