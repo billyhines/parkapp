@@ -37,7 +37,7 @@ def findCloseBlocks(point, meters, client):
     :param meters: The radius to search within in meters.
     :type meters: int
     :param client: The pymongo MongoClient instance.
-    :type meters: pymongo.mongo_client.MongoClient
+    :type client: pymongo.mongo_client.MongoClient
     :returns:  DataFrame -- the close blocks in a Pandas DataFrame.
     :raises: ValueError
     """
@@ -75,9 +75,9 @@ def findBlockCoordinates(block_df, client):
     """Return the space marker ids, their coordinates, and block information for markers within the given blocks.
 
     :param block_df: The close blocks in a Pandas DataFrame.
-    :type point: DataFrame
+    :type block_df: DataFrame
     :param client: The pymongo MongoClient instance.
-    :type meters: pymongo.mongo_client.MongoClient.
+    :type client: pymongo.mongo_client.MongoClient.
     :returns:  list -- a list of Dicts that have all the plotting information for the spaces.
     """
     db = client['parking']
@@ -131,7 +131,7 @@ def getBlockAvailability(features, time, client):
     :param time: The time entered by the user.
     :type time: str
     :param client: The pymongo MongoClient instance.
-    :type meters: pymongo.mongo_client.MongoClient.
+    :type client: pymongo.mongo_client.MongoClient.
     :returns:  list -- a list of Dicts that have all the plotting information for the spaces as well as the predictions.
     """
     db = client['parking']

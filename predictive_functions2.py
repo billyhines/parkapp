@@ -17,9 +17,9 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
     :param lookbackWeeks: The number of weeks to examine before the timestamp to form the prediction.
     :type lookbackWeeks: int
     :param timewindow: The number of minutes to examine around the given timestamp at each week to form the prediction.
-    :type time: int
+    :type timewindow: int
     :param client: The pymongo MongoClient instance.
-    :type meters: pymongo.mongo_client.MongoClient
+    :type client: pymongo.mongo_client.MongoClient
     :returns:  float -- the percentage of examined time in which the block has at least one open parking bay.
     """
     db = client['parking']
