@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import datetime
 from dateutil.parser import parse
-import predictive_functions2
+import predictive_functions
 
 def geocode_address(locationQuery):
     """Lookup user inputted text with a Geolocation service. Return the clean address and coordinates.
@@ -158,7 +158,7 @@ def getBlockAvailability(features, time, client):
     # Run the predictive function for each of the blocks
     predictions = []
     for index, row in blocks.iterrows():
-        prediction = predictive_functions2.historicalUtilizationPercentageWithIgnore(row['StreetName'], row['BetweenStreet1'], row['BetweenStreet2'],
+        prediction = predictive_functions.historicalUtilizationPercentageWithIgnore(row['StreetName'], row['BetweenStreet1'], row['BetweenStreet2'],
                                                                                      timestamp, lookbackWeeks,timewindow, client)
         predictions.append(prediction)
 
