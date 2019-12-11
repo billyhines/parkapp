@@ -12,10 +12,10 @@ Documentation can be built using [Sphinx](http://www.sphinx-doc.org/en/master/) 
 ## Installation
 
 ## To Do
-- [ ] Implement testing
-- [ ]  Create MongoDB setup script
-- [ ]  Create requirements.txt
+- Implement testing
+- Create MongoDB setup script
+- Create requirements.txt
 
 ## Credits
-Billy Hines
+Billy Hines  
 Brian Godsey
