@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<head>
+    <title>GeoJSON + Flask + MongoDB</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>
+        Melbourne Parking Availability
+    </h1>
+
+<div id="controls" style="margin: 15px;">
+  <form id="form1" action="#">
+  	<label for="input1">Enter Address:</label>
+  	<input id="input1" type="text">
+  </form>
+  <form id="dateform1" action="#">
+  	<label for="date1">Enter Date (Optional):</label>
+  	<input id="date1" type="datetime-local">
+  	<input type="submit" id="time_bt">
+  </form>
+  <button id="clear_bt">Clear</button>
+</div>
+
+
+<div id="map" style="height: 80vh;"></div>
+
+<script>
+
+var map = L.map('map').setView([-37.813250, 144.962670], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
+    attribution: 'Open street map'
+}).addTo(map);
+
+
+// Null variables that will hold our data for the user point and the parking
+var userAddressLayer = null;
+var parkingLayer = null;
+var messageLayer = null;
+
+// Create event listener for the forms
+document.getElementById("dateform1").addEventListener('submit', addMappingData);
+document.getElementById("clear_bt").addEventListener('click', clearAll);
+
+// add address pointer and nearby parking function
+function addMappingData() {
+  var userAddress = document.getElementById("input1").value;
+  var userTime = document.getElementById("date1").value;
+  axios.post('http://127.0.0.1:5000/address-and-parking', {address: userAddress, time: userTime})
+      .then(response => {
+          console.log(response.data.space_data)
+          parkingLayer = L.geoJSON(response.data.space_data, {
+            style: style,
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(feature.properties.description);
+              }
+          }).addTo(map);
+          console.log(response.data.address_data)
+          userAddressLayer = L.geoJSON(response.data.address_data, {
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(feature.properties.cleanAddress);
+              }
+          }).addTo(map);
+  }).catch((error) => {L.popup().setLatLng([-37.813250, 144.962670])
+                                .setContent(error.response.data.message)
+                                .openOn(map);})
+};
+
+// add color mapping function
+function setColor(avail){
+return avail > 0.95 ? '#008744' :
+                      '#d62d20';
+};
+
+// Set style function that sets fill color property equal to parkling availability
+function style(feature) {
+    return {
+        fillColor: setColor(feature.properties.prediction),
+        fillOpacity: 0.7,
+        weight: 2,
+        opacity: 1,
+        color: setColor(feature.properties.prediction)
+    };
+}
+
+// add clearing function
+function clearAll() {
+  map.removeLayer(userAddressLayer);
+  map.removeLayer(parkingLayer);
+};
+
+</script>
+
+</body>
+</html>
