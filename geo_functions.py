@@ -4,6 +4,7 @@ import pandas as pd
 import datetime
 from dateutil.parser import parse
 import predictive_functions
+from pymongo import MongoClient
 
 def geocode_address(locationQuery):
     """Lookup user inputted text with a Geolocation service. Return the clean address and coordinates.
@@ -40,7 +41,18 @@ def findCloseBlocks(point, meters, client):
     :returns:  DataFrame -- the close blocks in a Pandas DataFrame.
     :raises: ValueError
     """
+
+    # check to make sure the client variable is a mongo connection
+    if type(client) != MongoClient:
+        raise ValueError('client must be a MongoClient object')
+
     db = client['parking']
+
+    # Check for coordinates are correct
+    if type(point) != list:
+        raise TypeError('point must be a list of Long, Lat')
+    if len(point) != 2:
+        raise ValueError('point must have a length of two')
 
     # Find markers within the radius
     closeMarkerCur = db.bayData.find({'geometry': {
