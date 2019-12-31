@@ -46,12 +46,6 @@ def findCloseBlocks(point, meters, client):
     if type(client) != MongoClient:
         raise ValueError('client must be a MongoClient object')
 
-    # Check for coordinates are correct
-    if type(point) != list:
-        raise TypeError('point must be a list of Long, Lat')
-    if len(point) != 2:
-        raise ValueError('point must have a length of two')
-
     # Find markers within the radius
     closeMarkers = findCloseMarker_ids(point, meters, client)
 
@@ -186,6 +180,12 @@ def findCloseMarker_ids(point, meters, client):
     # set the database
     db = client['parking']
 
+    # Check for coordinates are correct
+    if type(point) != list:
+        raise TypeError('point must be a list of Long, Lat')
+    if len(point) != 2:
+        raise ValueError('point must have a length of two')
+
     # GeoQuery in the bayData collection for marker_ids
     closeMarkerCur = db.bayData.find({'geometry': {
                                         '$near': {
@@ -213,6 +213,7 @@ def blocksFromMarker_ids(closeMarkers, client):
     :param client: The pymongo MongoClient instance.
     :type client: pymongo.mongo_client.MongoClient
     :returns:  DataFrame -- the close blocks in a Pandas DataFrame.
+    :raises: ValueError
     """
 
     # set the database
@@ -227,5 +228,8 @@ def blocksFromMarker_ids(closeMarkers, client):
                             'BetweenStreet2': entry['BetweenStreet2']})
     closeBlocks = pd.DataFrame(closeBlocks)
     closeBlocks.drop_duplicates(inplace=True)
+
+    if len(closeBlocks) == 0:
+        raise ValueError('No parking bays found near specified point')
 
     return(closeBlocks)
