@@ -39,14 +39,12 @@ def findCloseBlocks(point, meters, client):
     :param client: The pymongo MongoClient instance.
     :type client: pymongo.mongo_client.MongoClient
     :returns:  DataFrame -- the close blocks in a Pandas DataFrame.
-    :raises: ValueError
+    :raises: ValueError, TypeError
     """
 
     # check to make sure the client variable is a mongo connection
     if type(client) != MongoClient:
         raise ValueError('client must be a MongoClient object')
-
-    db = client['parking']
 
     # Check for coordinates are correct
     if type(point) != list:
@@ -55,31 +53,11 @@ def findCloseBlocks(point, meters, client):
         raise ValueError('point must have a length of two')
 
     # Find markers within the radius
-    closeMarkerCur = db.bayData.find({'geometry': {
-                                        '$near': {
-                                            '$geometry': {
-                                                'type': "Point" ,
-                                                'coordinates': [point[0], point[1]]},
-                                            '$maxDistance': meters}}
-                                       })
-
-    closeMarkers = [x['properties']['marker_id'] for x in closeMarkerCur]
-    closeMarkers = np.unique(closeMarkers)
-    closeMarkers = list(filter(None, closeMarkers))
-
-    # Check to make sure that there are spaces close to the point of interest
-    if len(closeMarkers) == 0:
-        raise ValueError('No parking bays found near specified point')
+    closeMarkers = findCloseMarker_ids(point, meters, client)
 
     # Find blocks associated with these close markers
-    closeBlocksCur =  db.deviceToSpaceAndBlock.find({'StreetMarker': {'$in': closeMarkers}})
-    closeBlocks = []
-    for entry in closeBlocksCur:
-        closeBlocks.append({'StreetName': entry['StreetName'],
-                            'BetweenStreet1': entry['BetweenStreet1'],
-                            'BetweenStreet2': entry['BetweenStreet2']})
-    closeBlocks = pd.DataFrame(closeBlocks)
-    closeBlocks.drop_duplicates(inplace=True)
+    closeBlocks = blocksFromMarker_ids(closeMarkers, client)
+
     return(closeBlocks)
 
 def findBlockCoordinates(block_df, client):
@@ -191,3 +169,63 @@ def getBlockAvailability(features, time, client):
         spot['properties']['isOpen'] = tmpIsOpen
 
     return(features)
+
+def findCloseMarker_ids(point, meters, client):
+    """Find the marker_ids for spaces within the radius of the supplied coordinates with a GeoQuery.
+
+    :param point: The coordinates of the point.
+    :type point: list
+    :param meters: The radius to search within in meters.
+    :type meters: int
+    :param client: The pymongo MongoClient instance.
+    :type client: pymongo.mongo_client.MongoClient
+    :returns:  list -- the close marker_ids in a list.
+    :raises: ValueError
+    """
+
+    # set the database
+    db = client['parking']
+
+    # GeoQuery in the bayData collection for marker_ids
+    closeMarkerCur = db.bayData.find({'geometry': {
+                                        '$near': {
+                                            '$geometry': {
+                                                'type': "Point" ,
+                                                'coordinates': [point[0], point[1]]},
+                                            '$maxDistance': meters}}
+                                       })
+
+    closeMarkers = [x['properties']['marker_id'] for x in closeMarkerCur]
+    closeMarkers = np.unique(closeMarkers)
+    closeMarkers = list(filter(None, closeMarkers))
+
+    # Check to make sure that there are spaces close to the point of interest
+    if len(closeMarkers) == 0:
+        raise ValueError('No parking bays found near specified point')
+
+    return(closeMarkers)
+
+def blocksFromMarker_ids(closeMarkers, client):
+    """Find that blocks that contain the given marker_ids.
+
+    :param closeMarkers: List of marker_ids.
+    :type point: list
+    :param client: The pymongo MongoClient instance.
+    :type client: pymongo.mongo_client.MongoClient
+    :returns:  DataFrame -- the close blocks in a Pandas DataFrame.
+    """
+
+    # set the database
+    db = client['parking']
+
+    # Find blocks associated with these close markers
+    closeBlocksCur =  db.deviceToSpaceAndBlock.find({'StreetMarker': {'$in': closeMarkers}})
+    closeBlocks = []
+    for entry in closeBlocksCur:
+        closeBlocks.append({'StreetName': entry['StreetName'],
+                            'BetweenStreet1': entry['BetweenStreet1'],
+                            'BetweenStreet2': entry['BetweenStreet2']})
+    closeBlocks = pd.DataFrame(closeBlocks)
+    closeBlocks.drop_duplicates(inplace=True)
+
+    return(closeBlocks)
