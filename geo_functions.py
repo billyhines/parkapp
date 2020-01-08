@@ -230,9 +230,14 @@ def marker_idsFromBlocks(block_df, client):
     :param client: The pymongo MongoClient instance.
     :type client: pymongo.mongo_client.MongoClient.
     :returns:  DataFrame -- all of the blocks and the marker_ids assiated with them.
+    :raises: ValueError
     """
 
     db = client['parking']
+
+    # Check for columns in block_df are correct
+    if ('BetweenStreet1' not in block_df.columns.values) | ('BetweenStreet2' not in block_df.columns.values) | ('StreetName' not in block_df.columns.values):
+        raise ValueError('block_df must have columns for StreetName, BetweenStreet1, and BetweenStreet2')
 
     # Find all the markers within blocks
     blocksWithAllMarkers = []
@@ -245,8 +250,14 @@ def marker_idsFromBlocks(block_df, client):
                                          'BetweenStreet1': row['BetweenStreet1'],
                                          'BetweenStreet2': row['BetweenStreet2'],
                                          'marker_id': marker['StreetMarker']})
+
+    # Check to make sure that there are maker_ids within the blocks
+    if len(blocksWithAllMarkers) == 0:
+        raise ValueError('No marker_ids found to be associated with the blocks')
+
     blocksWithAllMarkers = pd.DataFrame(blocksWithAllMarkers)
     blocksWithAllMarkers.drop_duplicates(inplace=True)
+    blocksWithAllMarkers.reset_index(inplace=True, drop=True)
 
     return(blocksWithAllMarkers)
 

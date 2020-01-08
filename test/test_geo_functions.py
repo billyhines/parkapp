@@ -5,6 +5,7 @@ import geo_functions
 
 import pytest
 import pandas as pd
+import numpy as np
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 
@@ -1267,3 +1268,83 @@ def test_findBlockCoordinates_bad_client():
                                    'BetweenStreet2': ['FANNING STREET']})
         test_client = 100
         geo_functions.findBlockCoordinates(test_block, test_client)
+
+def test_marker_idsFromBlocks_bad_block_df_cols():
+    # Tests a misformed block_df being passed in
+    with pytest.raises(ValueError, match= 'block_df must have columns for StreetName, BetweenStreet1, and BetweenStreet2'):
+        test_block = pd.DataFrame({'street': ['Arch St'],
+                                   'value': ['0.5']})
+        geo_functions.findBlockCoordinates(test_block, client)
+
+def test_marker_idsFromBlocks_bad_block_df():
+    # Tests a block_df being passed in isn't a dataframe
+    with pytest.raises(AttributeError, match= "'str' object has no attribute 'columns'"):
+        test_block = 'test'
+        geo_functions.findBlockCoordinates(test_block, client)
+
+def test_marker_idsFromBlocks_empty_results():
+    # Tests a block_df being passed in that won't have any marker_ids
+    with pytest.raises(ValueError, match= 'No marker_ids found to be associated with the blocks'):
+        test_block = pd.DataFrame({'StreetName': ['ARCH STREET'],
+                                   'BetweenStreet1': ['WINTER STREET'],
+                                   'BetweenStreet2': ['SUMMER STREET']})
+        geo_functions.findBlockCoordinates(test_block, client)
+
+def test_marker_idsFromBlocks_marker_id_output1():
+    # tests output of marker_idsFromBlocks in the Eastern region of parking spaces
+    expected_blocks_marker_ids = expected_blocks_marker_ids = pd.DataFrame({'StreetName': np.repeat('BOURKE STREET', 6),
+                                           'BetweenStreet1': np.repeat('CAPTAIN WALK', 6),
+                                           'BetweenStreet2':np.repeat('ENTERPRIZE WAY', 6),
+                                           'marker_id': ['13236N', '13228N', '13234N', '13230N', '13238N', '13232N']})
+    test_block = pd.DataFrame({'StreetName': ['BOURKE STREET'],
+                               'BetweenStreet1': ['CAPTAIN WALK'],
+                               'BetweenStreet2': ['ENTERPRIZE WAY']})
+    test_blocks_marker_ids = geo_functions.marker_idsFromBlocks(test_block, client)
+
+    pd.testing.assert_frame_equal(expected_blocks_marker_ids, test_blocks_marker_ids)
+
+def test_marker_idsFromBlocks_marker_id_output2():
+    # tests output of marker_idsFromBlocks in the Western region of parking spaces
+    expected_blocks_marker_ids = pd.DataFrame({'StreetName': np.repeat('NICHOLSON STREET', 17),
+                                           'BetweenStreet1': np.repeat('ALBERT STREET', 17),
+                                           'BetweenStreet2':np.repeat('SPRING STREET', 17),
+                                           'marker_id': ['11716E','11706E','11726E','11702E','11722E','11720E','11714E','11703W',
+                                                        '11718E','11709W','11705W','11710E','11724E','11707W','11730E','11700E','11708E']})
+    test_block = pd.DataFrame({'StreetName': ['NICHOLSON STREET'],
+                               'BetweenStreet1': ['ALBERT STREET'],
+                               'BetweenStreet2': ['SPRING STREET']})
+    test_blocks_marker_ids = geo_functions.marker_idsFromBlocks(test_block, client)
+
+    pd.testing.assert_frame_equal(expected_blocks_marker_ids, test_blocks_marker_ids)
+
+def test_marker_idsFromBlocks_marker_id_output3():
+    # tests output of marker_idsFromBlocks in the Northern region of parking spaces
+    expected_blocks_marker_ids = pd.DataFrame({'StreetName': np.repeat('CHETWYND STREET', 51),
+                                           'BetweenStreet1': np.repeat('QUEENSBERRY STREET', 51),
+                                           'BetweenStreet2':np.repeat('VICTORIA STREET', 51),
+                                           'marker_id': ['C6076', 'C6142', 'C6130', 'C6124', 'C6074', 'C6114', 'C6154', 'C6122',
+                                                         'C6136', 'C6102', 'C6092', 'C6110', 'C6160', 'C6072', 'C6106', 'C6104',
+                                                         'C6132', 'C6170', 'C6084', 'C6096', 'C6100', 'C6112', 'C6120', 'C6176',
+                                                         'C6108', 'C6140', 'C6148', 'C6098', 'C6180', 'C6164', 'C6134', 'C6116',
+                                                         'C6144', 'C6172', 'C6138', 'C6078', 'C6152', 'C6158', 'C6166', 'C6088',
+                                                         'C6080', 'C6174', 'C6126', 'C6086', 'C6090', 'C6082', 'C6146', 'C6156',
+                                                         'C6162', 'C6118', 'C6178']})
+    test_block = pd.DataFrame({'StreetName': ['CHETWYND STREET'],
+                               'BetweenStreet1': ['QUEENSBERRY STREET'],
+                               'BetweenStreet2': ['VICTORIA STREET']})
+    test_blocks_marker_ids = geo_functions.marker_idsFromBlocks(test_block, client)
+
+    pd.testing.assert_frame_equal(expected_blocks_marker_ids, test_blocks_marker_ids)
+
+def test_marker_idsFromBlocks_marker_id_output4():
+    # tests output of marker_idsFromBlocks in the Southern region of parking spaces
+    expected_blocks_marker_ids = pd.DataFrame({'StreetName': np.repeat('FAWKNER STREET', 5),
+                                           'BetweenStreet1': np.repeat('SOUTHBANK BOULEVARD', 5),
+                                           'BetweenStreet2':np.repeat('FANNING STREET', 5),
+                                           'marker_id': ['8846E', '8840E', '8848E', '8850E', '8838E']})
+    test_block = pd.DataFrame({'StreetName': ['FAWKNER STREET'],
+                               'BetweenStreet1': ['SOUTHBANK BOULEVARD'],
+                               'BetweenStreet2': ['FANNING STREET']})
+    test_blocks_marker_ids = geo_functions.marker_idsFromBlocks(test_block, client)
+
+    pd.testing.assert_frame_equal(expected_blocks_marker_ids, test_blocks_marker_ids)
