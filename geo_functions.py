@@ -273,6 +273,10 @@ def findCoordsFromMarker_Ids(marker_ids, client):
 
     db = client['parking']
 
+    # Check to make sure that maker_ids is a list
+    if type(marker_ids) != list:
+        raise TypeError('marker_ids must in a list')
+
     # Find coordinatess for all markers
     markerCoordsCur = db.bayData.find({"properties.marker_id" :{"$in": marker_ids}})
 

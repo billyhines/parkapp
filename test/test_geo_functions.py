@@ -1348,3 +1348,53 @@ def test_marker_idsFromBlocks_marker_id_output4():
     test_blocks_marker_ids = geo_functions.marker_idsFromBlocks(test_block, client)
 
     pd.testing.assert_frame_equal(expected_blocks_marker_ids, test_blocks_marker_ids)
+
+def test_findCoordsFromMarker_Ids_bad_makers():
+    # tests to make sure that the marker_ids passed into the function are a List
+        with pytest.raises(TypeError, match= 'marker_ids must in a list'):
+            bad_markers = 'test'
+            geo_functions.findCoordsFromMarker_Ids(bad_markers, client)
+
+def test_findCoordsFromMarker_Ids_output1():
+    # tests output of findCoordsFromMarker_Ids in the Eastern region of parking spaces
+    expected_coords = pd.DataFrame({'coordinates':[[[[[144.9450020642314, -37.81940795532061], [144.9449391150157, -37.819426177762296],
+                                    [144.9449306767157, -37.81940782589276], [144.94499361195577, -37.81938957437392], [144.9450020642314, -37.81940795532061]]]]],
+                                    'description': ['Bourke Street between Harbour Esplanade and Enterprize Way'],
+                                    'marker_id': ['13232N']})
+    test_marker_ids = ['13232N']
+    test_coords = geo_functions.findCoordsFromMarker_Ids(test_marker_ids, client)
+
+    pd.testing.assert_frame_equal(expected_coords, test_coords)
+
+def test_findCoordsFromMarker_Ids_output2():
+    # tests output of findCoordsFromMarker_Ids in the Western region of parking spaces
+    expected_coords = pd.DataFrame({'coordinates': [[[[[144.9729630634504, -37.81056853547334], [144.97296854367585, -37.810633343381966],
+                                    [144.97294340575965, -37.81063515097288], [144.97293702221512, -37.810570022013785], [144.9729630634504, -37.81056853547334]]]]],
+                                    'description': ['Nicholson Street between Spring Street and Albert Street'],
+                                    'marker_id': ['11702E']})
+    test_marker_ids = ['11702E']
+    test_coords = geo_functions.findCoordsFromMarker_Ids(test_marker_ids, client)
+
+    pd.testing.assert_frame_equal(expected_coords, test_coords)
+
+def test_findCoordsFromMarker_Ids_output3():
+    # tests output of findCoordsFromMarker_Ids in the Northern region of parking spaces
+    expected_coords = pd.DataFrame({'coordinates':[[[[[144.95223192138005, -37.805151125654554], [144.95223625274903, -37.80512721709101],
+                                    [144.9522976043261, -37.805133346768955], [144.95229331828725, -37.80515725972793], [144.95223192138005, -37.805151125654554]]]]],
+                                    'description': ['Chetwynd Street between Victoria Street and Queensberry Street'],
+                                    'marker_id': ['C6076']})
+    test_marker_ids = ['C6076']
+    test_coords = geo_functions.findCoordsFromMarker_Ids(test_marker_ids, client)
+
+    pd.testing.assert_frame_equal(expected_coords, test_coords)
+
+def test_findCoordsFromMarker_Ids_output4():
+    # tests output of findCoordsFromMarker_Ids in the Southern region of parking spaces
+    expected_coords = pd.DataFrame({'coordinates':[[[[[144.96581498926219, -37.822537212307225], [144.96586540785984, -37.82251409770299],
+                                    [144.9658776387885, -37.8225302778338], [144.96582703180349, -37.822553467590616], [144.96581498926219, -37.822537212307225]]]]],
+                                    'description': ['Fawkner Street between Southbank Boulevard and Fanning Street'],
+                                    'marker_id': ['8848E']})
+    test_marker_ids = ['8848E']
+    test_coords = geo_functions.findCoordsFromMarker_Ids(test_marker_ids, client)
+
+    pd.testing.assert_frame_equal(expected_coords, test_coords)
