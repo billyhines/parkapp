@@ -62,37 +62,25 @@ def findBlockCoordinates(block_df, client):
     :param client: The pymongo MongoClient instance.
     :type client: pymongo.mongo_client.MongoClient.
     :returns:  list -- a list of Dicts that have all the plotting information for the spaces.
+    :raises: ValueError
     """
-    db = client['parking']
+
+    # check to make sure the client variable is a mongo connection
+    if type(client) != MongoClient:
+        raise ValueError('client must be a MongoClient object')
 
     # Find all the markers within blocks
-    blocksWithAllMarkers = []
-    for index, row in block_df.iterrows():
-        markersPerBlockCur = db.deviceToSpaceAndBlock.find({'StreetName': row['StreetName'],
-                                                            'BetweenStreet1': row['BetweenStreet1'],
-                                                            'BetweenStreet2':row['BetweenStreet2']})
-        for marker in markersPerBlockCur:
-            blocksWithAllMarkers.append({'StreetName': row['StreetName'],
-                                         'BetweenStreet1': row['BetweenStreet1'],
-                                         'BetweenStreet2': row['BetweenStreet2'],
-                                         'marker_id': marker['StreetMarker']})
-    blocksWithAllMarkers = pd.DataFrame(blocksWithAllMarkers)
-    blocksWithAllMarkers.drop_duplicates(inplace=True)
+    blocksWithAllMarkers = marker_idsFromBlocks(block_df, client)
+    allMarkers = [x for x in blocksWithAllMarkers['marker_id']]
 
     # Find coordinatess for all markers
-    markerCoordsCur = db.bayData.find({"properties.marker_id" :{"$in": [x for x in blocksWithAllMarkers['marker_id']]}})
+    markerCoords = findCoordsFromMarker_Ids(allMarkers, client)
 
-    markerCoords = []
-    for marker in markerCoordsCur:
-        markerCoords.append({'marker_id': marker['properties']['marker_id'],
-                             'coordinates': marker['geometry']['coordinates'],
-                             'description': marker['properties']['rd_seg_dsc']})
-    markerCoords = pd.DataFrame(markerCoords)
-
-    # Join in the coordinates then format for output
+    # Join blocks and marker information into a common DataFrame
     blocksWithAllMarkers = blocksWithAllMarkers.merge(markerCoords, how = 'left', right_on = 'marker_id', left_on = 'marker_id')
     blocksWithAllMarkers.dropna(inplace=True)
 
+    # Format output into a dict
     blocksWithCoords = []
     for index, row in blocksWithAllMarkers.iterrows():
         blocksWithCoords.append({"type": "Feature",
@@ -233,3 +221,55 @@ def blocksFromMarker_ids(closeMarkers, client):
         raise ValueError('No parking bays found near specified point')
 
     return(closeBlocks)
+
+def marker_idsFromBlocks(block_df, client):
+    """Appends a column of all the marker_ids to a DataFrame of block identifiers.
+
+    :param block_df: The close blocks in a Pandas DataFrame.
+    :type block_df: DataFrame
+    :param client: The pymongo MongoClient instance.
+    :type client: pymongo.mongo_client.MongoClient.
+    :returns:  DataFrame -- all of the blocks and the marker_ids assiated with them.
+    """
+
+    db = client['parking']
+
+    # Find all the markers within blocks
+    blocksWithAllMarkers = []
+    for index, row in block_df.iterrows():
+        markersPerBlockCur = db.deviceToSpaceAndBlock.find({'StreetName': row['StreetName'],
+                                                            'BetweenStreet1': row['BetweenStreet1'],
+                                                            'BetweenStreet2':row['BetweenStreet2']})
+        for marker in markersPerBlockCur:
+            blocksWithAllMarkers.append({'StreetName': row['StreetName'],
+                                         'BetweenStreet1': row['BetweenStreet1'],
+                                         'BetweenStreet2': row['BetweenStreet2'],
+                                         'marker_id': marker['StreetMarker']})
+    blocksWithAllMarkers = pd.DataFrame(blocksWithAllMarkers)
+    blocksWithAllMarkers.drop_duplicates(inplace=True)
+
+    return(blocksWithAllMarkers)
+
+def findCoordsFromMarker_Ids(marker_ids, client):
+    """Returns a DataFrame of marker_ids, coordinates, and desctiptions from the bayData collection
+
+    :param marker_ids: marker_ids of interest
+    :type marker_ids: list
+    :param client: The pymongo MongoClient instance.
+    :type client: pymongo.mongo_client.MongoClient.
+    :returns:  DataFrame -- a DataFrame with marker_id, coordinates, and descriptions.
+    """
+
+    db = client['parking']
+
+    # Find coordinatess for all markers
+    markerCoordsCur = db.bayData.find({"properties.marker_id" :{"$in": marker_ids}})
+
+    markerCoords = []
+    for marker in markerCoordsCur:
+        markerCoords.append({'marker_id': marker['properties']['marker_id'],
+                             'coordinates': marker['geometry']['coordinates'],
+                             'description': marker['properties']['rd_seg_dsc']})
+    markerCoords = pd.DataFrame(markerCoords)
+
+    return(markerCoords)

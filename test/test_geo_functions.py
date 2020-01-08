@@ -1258,3 +1258,12 @@ def test_findBlockCoordinates_block_output4():
     test_coords = geo_functions.findBlockCoordinates(test_block, client)
 
     assert expected_coords == test_coords
+
+def test_findBlockCoordinates_bad_client():
+    # Tests a bad mongo client passed in
+    with pytest.raises(ValueError, match= 'client must be a MongoClient object'):
+        test_block = pd.DataFrame({'StreetName': ['FAWKNER STREET'],
+                                   'BetweenStreet1': ['SOUTHBANK BOULEVARD'],
+                                   'BetweenStreet2': ['FANNING STREET']})
+        test_client = 100
+        geo_functions.findBlockCoordinates(test_block, test_client)
