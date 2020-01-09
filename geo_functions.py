@@ -81,17 +81,8 @@ def findBlockCoordinates(block_df, client):
     blocksWithAllMarkers.dropna(inplace=True)
 
     # Format output into a dict
-    blocksWithCoords = []
-    for index, row in blocksWithAllMarkers.iterrows():
-        blocksWithCoords.append({"type": "Feature",
-                                 "geometry": {
-                                    "type": "MultiPolygon",
-                                    "coordinates": row['coordinates']},
-                                 "properties": {
-                                    "StreetName": row['StreetName'],
-                                    "BetweenStreet1": row['BetweenStreet1'],
-                                    "BetweenStreet2": row['BetweenStreet2'],
-                                    "description": row['description']}})
+    blocksWithCoords = format_blocksWithAllMarkers(blocksWithAllMarkers)
+
     return(blocksWithCoords)
 
 def getBlockAvailability(features, time, client):
@@ -209,13 +200,17 @@ def blocksFromMarker_ids(closeMarkers, client):
 
     # Find blocks associated with these close markers
     closeBlocksCur =  db.deviceToSpaceAndBlock.find({'StreetMarker': {'$in': closeMarkers}})
-    closeBlocks = []
-    for entry in closeBlocksCur:
-        closeBlocks.append({'StreetName': entry['StreetName'],
-                            'BetweenStreet1': entry['BetweenStreet1'],
-                            'BetweenStreet2': entry['BetweenStreet2']})
-    closeBlocks = pd.DataFrame(closeBlocks)
-    closeBlocks.drop_duplicates(inplace=True)
+
+    # Formats the cursor outputs into a DataFrame
+    closeBlocks = format_closeBlocksCur(closeBlocksCur)
+
+    # closeBlocks = []
+    # for entry in closeBlocksCur:
+    #     closeBlocks.append({'StreetName': entry['StreetName'],
+    #                         'BetweenStreet1': entry['BetweenStreet1'],
+    #                         'BetweenStreet2': entry['BetweenStreet2']})
+    # closeBlocks = pd.DataFrame(closeBlocks)
+    # closeBlocks.drop_duplicates(inplace=True)
 
     if len(closeBlocks) == 0:
         raise ValueError('No parking bays found near specified point')
@@ -288,3 +283,42 @@ def findCoordsFromMarker_Ids(marker_ids, client):
     markerCoords = pd.DataFrame(markerCoords)
 
     return(markerCoords)
+
+def format_blocksWithAllMarkers(blocksWithAllMarkers):
+        """Returns a dict of with the block information, and coordinate geometry in GeoJSON style
+
+        :param blocksWithAllMarkers: blocks, marker_ids, marker_id descriptions, and coordinates
+        :type blocksWithAllMarkers: DataFrame
+        :returns:  dict -- a dict of with the block information, and coordinate geometry in GeoJSON style.
+        """
+
+        blocksWithCoords = []
+        for index, row in blocksWithAllMarkers.iterrows():
+            blocksWithCoords.append({"type": "Feature",
+                                     "geometry": {
+                                        "type": "MultiPolygon",
+                                        "coordinates": row['coordinates']},
+                                     "properties": {
+                                        "StreetName": row['StreetName'],
+                                        "BetweenStreet1": row['BetweenStreet1'],
+                                        "BetweenStreet2": row['BetweenStreet2'],
+                                        "description": row['description']}})
+        return(blocksWithCoords)
+
+def format_closeBlocksCur(closeBlocksCur):
+        """Returns a DataFrame of the block information from a cursor assoicated with Mongo query of marker_ids
+
+        :param closeBlocksCur: blocks, marker_ids, marker_id descriptions, and coordinates
+        :type closeBlocksCur: Mongo Cursor
+        :returns:  DataFrame -- a DataFrame of the block information.
+        """
+
+        closeBlocks = []
+        for entry in closeBlocksCur:
+        	closeBlocks.append({'StreetName': entry['StreetName'],
+        						'BetweenStreet1': entry['BetweenStreet1'],
+        						'BetweenStreet2': entry['BetweenStreet2']})
+        closeBlocks = pd.DataFrame(closeBlocks)
+        closeBlocks.drop_duplicates(inplace=True)
+
+        return(closeBlocks)
