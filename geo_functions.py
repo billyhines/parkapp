@@ -204,14 +204,6 @@ def blocksFromMarker_ids(closeMarkers, client):
     # Formats the cursor outputs into a DataFrame
     closeBlocks = format_closeBlocksCur(closeBlocksCur)
 
-    # closeBlocks = []
-    # for entry in closeBlocksCur:
-    #     closeBlocks.append({'StreetName': entry['StreetName'],
-    #                         'BetweenStreet1': entry['BetweenStreet1'],
-    #                         'BetweenStreet2': entry['BetweenStreet2']})
-    # closeBlocks = pd.DataFrame(closeBlocks)
-    # closeBlocks.drop_duplicates(inplace=True)
-
     if len(closeBlocks) == 0:
         raise ValueError('No parking bays found near specified point')
 
@@ -264,6 +256,7 @@ def findCoordsFromMarker_Ids(marker_ids, client):
     :param client: The pymongo MongoClient instance.
     :type client: pymongo.mongo_client.MongoClient.
     :returns:  DataFrame -- a DataFrame with marker_id, coordinates, and descriptions.
+    :raises: TypeError
     """
 
     db = client['parking']
@@ -290,7 +283,12 @@ def format_blocksWithAllMarkers(blocksWithAllMarkers):
         :param blocksWithAllMarkers: blocks, marker_ids, marker_id descriptions, and coordinates
         :type blocksWithAllMarkers: DataFrame
         :returns:  dict -- a dict of with the block information, and coordinate geometry in GeoJSON style.
+        :raises: ValueError
         """
+        # Check for columns in block_df are correct
+        if ('BetweenStreet1' not in blocksWithAllMarkers.columns.values) | ('BetweenStreet2' not in blocksWithAllMarkers.columns.values) | ('StreetName' not in blocksWithAllMarkers.columns.values) | \
+           ('marker_id' not in blocksWithAllMarkers.columns.values) | ('coordinates' not in blocksWithAllMarkers.columns.values) | ('description' not in blocksWithAllMarkers.columns.values):
+            raise ValueError('blocksWithAllMarkers must have columns for StreetName, BetweenStreet1, BetweenStreet2, marker_id, coordinates, and description')
 
         blocksWithCoords = []
         for index, row in blocksWithAllMarkers.iterrows():

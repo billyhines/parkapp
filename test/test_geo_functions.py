@@ -1398,3 +1398,57 @@ def test_findCoordsFromMarker_Ids_output4():
     test_coords = geo_functions.findCoordsFromMarker_Ids(test_marker_ids, client)
 
     pd.testing.assert_frame_equal(expected_coords, test_coords)
+
+def test_format_blocksWithAllMarkers_output():
+    # tests output of format_blocksWithAllMarkers
+    expected_blocksWithCoords = [{'geometry': {'coordinates': [[[[144.94331261647844, -37.82007849794797],
+                                      [144.9432481103186, -37.8200972789378],
+                                      [144.9432398944227, -37.82007952200679],
+                                      [144.9433043994333, -37.820060741001186],
+                                      [144.94331261647844, -37.82007849794797]]]],
+                                   'type': 'MultiPolygon'},
+                                  'properties': {'BetweenStreet1': 'MERCHANT STREET',
+                                   'BetweenStreet2': 'SEAFARER LANE',
+                                   'StreetName': 'BOURKE STREET',
+                                   'description': 'Bourke Street between Enterprize Way and Cumberland Street'},
+                                  'type': 'Feature'}]
+
+    test_blocksWithAllMarkers = pd.DataFrame({ 'StreetName': ['BOURKE STREET'],
+                                    		   'BetweenStreet1': ['MERCHANT STREET'],
+                                    		   'BetweenStreet2': ['SEAFARER LANE'],
+                                    		   'marker_id': ['13247S'],
+                                    		   'coordinates': [[[[[144.94331261647844, -37.82007849794797],
+                                    						   [144.9432481103186, -37.8200972789378],
+                                    						   [144.9432398944227, -37.82007952200679],
+                                    						   [144.9433043994333, -37.820060741001186],
+                                    						   [144.94331261647844, -37.82007849794797]]]]],
+                                    		   'description': ['Bourke Street between Enterprize Way and Cumberland Street']})
+
+    test_blocksWithCoords = geo_functions.format_blocksWithAllMarkers(test_blocksWithAllMarkers)
+
+    assert expected_blocksWithCoords == test_blocksWithCoords
+
+def test_format_blocksWithAllMarkers_bad_df_cols():
+    # Tests a misformed block_df being passed in
+    with pytest.raises(ValueError, match= 'blocksWithAllMarkers must have columns for StreetName, BetweenStreet1, BetweenStreet2, marker_id, coordinates, and description'):
+        test_block = pd.DataFrame({'street': ['Arch St'],
+                                   'value': ['0.5']})
+        geo_functions.format_blocksWithAllMarkers(test_block)
+
+def test_format_closeBlocksCur_output():
+    # tests output of format_closeBlocksCur
+    expected_closeBlocks = pd.DataFrame({  'StreetName': ['BOURKE STREET', 'BOURKE STREET'],
+                                           'BetweenStreet1': ['CAPTAIN WALK', 'NAVIGATION DRIVE'],
+                                           'BetweenStreet2': ['ENTERPRIZE WAY', 'GEOGRAPHE STREET']})
+
+    db = client['parking']
+    test_markers = ['13225S', '13228N']
+    test_closeBlocksCur = db.deviceToSpaceAndBlock.find({'StreetMarker': {'$in': test_markers}})
+    test_closeBlocks = geo_functions.format_closeBlocksCur(test_closeBlocksCur)
+
+    pd.testing.assert_frame_equal(expected_closeBlocks, test_closeBlocks)
+
+def test_format_closeBlocksCur_bad_input():
+    # Tests a bad input to format_closeBlocksCur
+    with pytest.raises(TypeError, match= "'int' object is not iterable"):
+        geo_functions.format_closeBlocksCur(8)
