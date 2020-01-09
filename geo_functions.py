@@ -27,7 +27,7 @@ def geocode_address(locationQuery):
     result = {"address": cleanAddress,
               "coordinates": coordinates}
 
-    return(result)
+    return result
 
 def findCloseBlocks(point, meters, client):
     """Find the blocks in the parking database that are within a given radius to a set of coordinates.
@@ -52,7 +52,7 @@ def findCloseBlocks(point, meters, client):
     # Find blocks associated with these close markers
     closeBlocks = blocksFromMarker_ids(closeMarkers, client)
 
-    return(closeBlocks)
+    return closeBlocks
 
 def findBlockCoordinates(block_df, client):
     """Return the space marker ids, their coordinates, and block information for markers within the given blocks.
@@ -83,7 +83,7 @@ def findBlockCoordinates(block_df, client):
     # Format output into a dict
     blocksWithCoords = format_blocksWithAllMarkers(blocksWithAllMarkers)
 
-    return(blocksWithCoords)
+    return blocksWithCoords
 
 def getBlockAvailability(features, time, client):
     """Find the predicted availablity for each block and append the information to the list of blocks.
@@ -141,7 +141,7 @@ def getBlockAvailability(features, time, client):
         spot['properties']['prediction'] = tmpPrediction
         spot['properties']['isOpen'] = tmpIsOpen
 
-    return(features)
+    return features
 
 def findCloseMarker_ids(point, meters, client):
     """Find the marker_ids for spaces within the radius of the supplied coordinates with a GeoQuery.
@@ -182,7 +182,7 @@ def findCloseMarker_ids(point, meters, client):
     if len(closeMarkers) == 0:
         raise ValueError('No parking bays found near specified point')
 
-    return(closeMarkers)
+    return closeMarkers
 
 def blocksFromMarker_ids(closeMarkers, client):
     """Find that blocks that contain the given marker_ids.
@@ -207,7 +207,7 @@ def blocksFromMarker_ids(closeMarkers, client):
     if len(closeBlocks) == 0:
         raise ValueError('No parking bays found near specified point')
 
-    return(closeBlocks)
+    return closeBlocks
 
 def marker_idsFromBlocks(block_df, client):
     """Appends a column of all the marker_ids to a DataFrame of block identifiers.
@@ -246,7 +246,7 @@ def marker_idsFromBlocks(block_df, client):
     blocksWithAllMarkers.drop_duplicates(inplace=True)
     blocksWithAllMarkers.reset_index(inplace=True, drop=True)
 
-    return(blocksWithAllMarkers)
+    return blocksWithAllMarkers
 
 def findCoordsFromMarker_Ids(marker_ids, client):
     """Returns a DataFrame of marker_ids, coordinates, and desctiptions from the bayData collection
@@ -275,7 +275,7 @@ def findCoordsFromMarker_Ids(marker_ids, client):
                              'description': marker['properties']['rd_seg_dsc']})
     markerCoords = pd.DataFrame(markerCoords)
 
-    return(markerCoords)
+    return markerCoords
 
 def format_blocksWithAllMarkers(blocksWithAllMarkers):
         """Returns a dict of with the block information, and coordinate geometry in GeoJSON style
@@ -301,7 +301,7 @@ def format_blocksWithAllMarkers(blocksWithAllMarkers):
                                         "BetweenStreet1": row['BetweenStreet1'],
                                         "BetweenStreet2": row['BetweenStreet2'],
                                         "description": row['description']}})
-        return(blocksWithCoords)
+        return blocksWithCoords
 
 def format_closeBlocksCur(closeBlocksCur):
         """Returns a DataFrame of the block information from a cursor assoicated with Mongo query of marker_ids
@@ -319,4 +319,4 @@ def format_closeBlocksCur(closeBlocksCur):
         closeBlocks = pd.DataFrame(closeBlocks)
         closeBlocks.drop_duplicates(inplace=True)
 
-        return(closeBlocks)
+        return closeBlocks

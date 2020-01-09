@@ -81,6 +81,8 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
                     openMinutes = openMinutes + np.timedelta64(timeChecks[i+1] - timeChecks[i], 's').astype(int)/60.
 
     if totalMinutes == 0:
-        return(0)
+        utilization = 0
     else:
-        return(float(openMinutes) / (totalMinutes))
+        utilization = float(openMinutes) / (totalMinutes)
+
+    return utilization
