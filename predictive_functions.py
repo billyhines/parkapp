@@ -64,6 +64,10 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
                 event['windowOpen'] = window[0]
                 eventsInWindows.append(event)
 
+    # Check to make sure there are events
+    if len(eventsInWindows) == 0:
+        raise ValueError('No similar parking events found')
+
     eventsInWindows = pd.DataFrame(eventsInWindows)
     eventsInWindows = eventsInWindows.astype({"Vehicle Present": int})
     eventsInWindows.rename(columns={"Vehicle Present": "VehiclePresent"}, inplace=True)
