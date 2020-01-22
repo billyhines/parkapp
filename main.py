@@ -39,7 +39,11 @@ def get_address_and_parking():
 
     blockCoords = geo_functions.findBlockCoordinates(closeBlocks, client)
     space_data.extend(blockCoords)
-    space_data = geo_functions.getBlockAvailability(space_data, time, client)
+
+    try:
+        space_data = geo_functions.getBlockAvailability(space_data, time, client)
+    except ValueError as e:
+        return jsonify({"message": e.message}), 400
 
     mapping_data = {"address_data": address_data,
                     "space_data" : space_data}
