@@ -25,7 +25,7 @@ def get_address_and_parking():
 
     try:
         user_point = geo_functions.geocode_address(address)
-        closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 200, client)
+        closeBlocks = geo_functions.findCloseBlocks(user_point["coordinates"], 200 , client)
     except ValueError as e:
         return jsonify({"message": e.message}), 400
 
