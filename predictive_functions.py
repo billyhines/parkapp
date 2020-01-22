@@ -64,6 +64,10 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
                 event['windowOpen'] = window[0]
                 eventsInWindows.append(event)
 
+    # Check to make sure there are events
+    if len(eventsInWindows) == 0:
+        raise ValueError('No similar parking events found')
+
     eventsInWindows = pd.DataFrame(eventsInWindows)
     eventsInWindows = eventsInWindows.astype({"Vehicle Present": int})
     eventsInWindows.rename(columns={"Vehicle Present": "VehiclePresent"}, inplace=True)
@@ -81,6 +85,8 @@ def historicalUtilizationPercentageWithIgnore(StreetName, BetweenStreet1, Betwee
                     openMinutes = openMinutes + np.timedelta64(timeChecks[i+1] - timeChecks[i], 's').astype(int)/60.
 
     if totalMinutes == 0:
-        return(0)
+        utilization = 0
     else:
-        return(float(openMinutes) / (totalMinutes))
+        utilization = float(openMinutes) / (totalMinutes)
+
+    return utilization
