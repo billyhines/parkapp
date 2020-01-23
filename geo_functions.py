@@ -39,7 +39,7 @@ def findCloseBlocks(point, meters, client):
     :param client: The pymongo MongoClient instance.
     :type client: pymongo.mongo_client.MongoClient
     :returns:  DataFrame -- the close blocks in a Pandas DataFrame.
-    :raises: ValueError, TypeError
+    :raises: ValueError
     """
 
     # check to make sure the client variable is a mongo connection
@@ -60,7 +60,7 @@ def findBlockCoordinates(block_df, client):
     :param block_df: The close blocks in a Pandas DataFrame.
     :type block_df: DataFrame
     :param client: The pymongo MongoClient instance.
-    :type client: pymongo.mongo_client.MongoClient.
+    :type client: pymongo.mongo_client.MongoClient
     :returns:  list -- a list of Dicts that have all the plotting information for the spaces.
     :raises: ValueError
     """
@@ -93,7 +93,7 @@ def getBlockAvailability(features, time, client):
     :param time: The time entered by the user.
     :type time: str
     :param client: The pymongo MongoClient instance.
-    :type client: pymongo.mongo_client.MongoClient.
+    :type client: pymongo.mongo_client.MongoClient
     :returns:  list -- a list of Dicts that have all the plotting information for the spaces as well as the predictions.
     """
     db = client['parking']
@@ -153,7 +153,7 @@ def findCloseMarker_ids(point, meters, client):
     :param client: The pymongo MongoClient instance.
     :type client: pymongo.mongo_client.MongoClient
     :returns:  list -- the close marker_ids in a list.
-    :raises: ValueError
+    :raises: ValueError, TypeError
     """
 
     # set the database
@@ -215,7 +215,7 @@ def marker_idsFromBlocks(block_df, client):
     :param block_df: The close blocks in a Pandas DataFrame.
     :type block_df: DataFrame
     :param client: The pymongo MongoClient instance.
-    :type client: pymongo.mongo_client.MongoClient.
+    :type client: pymongo.mongo_client.MongoClient
     :returns:  DataFrame -- all of the blocks and the marker_ids assiated with them.
     :raises: ValueError
     """
@@ -249,12 +249,12 @@ def marker_idsFromBlocks(block_df, client):
     return blocksWithAllMarkers
 
 def findCoordsFromMarker_Ids(marker_ids, client):
-    """Returns a DataFrame of marker_ids, coordinates, and desctiptions from the bayData collection
+    """Returns a DataFrame of marker_ids, coordinates, and desctiptions from the bayData collection.
 
-    :param marker_ids: marker_ids of interest
+    :param marker_ids: marker_ids of interest.
     :type marker_ids: list
     :param client: The pymongo MongoClient instance.
-    :type client: pymongo.mongo_client.MongoClient.
+    :type client: pymongo.mongo_client.MongoClient
     :returns:  DataFrame -- a DataFrame with marker_id, coordinates, and descriptions.
     :raises: TypeError
     """
@@ -278,9 +278,9 @@ def findCoordsFromMarker_Ids(marker_ids, client):
     return markerCoords
 
 def format_blocksWithAllMarkers(blocksWithAllMarkers):
-        """Returns a dict of with the block information, and coordinate geometry in GeoJSON style
+        """Returns a dict of with the block information, and coordinate geometry in GeoJSON style.
 
-        :param blocksWithAllMarkers: blocks, marker_ids, marker_id descriptions, and coordinates
+        :param blocksWithAllMarkers: blocks, marker_ids, marker_id descriptions, and coordinates.
         :type blocksWithAllMarkers: DataFrame
         :returns:  dict -- a dict of with the block information, and coordinate geometry in GeoJSON style.
         :raises: ValueError
@@ -304,9 +304,9 @@ def format_blocksWithAllMarkers(blocksWithAllMarkers):
         return blocksWithCoords
 
 def format_closeBlocksCur(closeBlocksCur):
-        """Returns a DataFrame of the block information from a cursor assoicated with Mongo query of marker_ids
+        """Returns a DataFrame of the block information from a cursor assoicated with Mongo query of marker_ids.
 
-        :param closeBlocksCur: blocks, marker_ids, marker_id descriptions, and coordinates
+        :param closeBlocksCur: blocks, marker_ids, marker_id descriptions, and coordinates.
         :type closeBlocksCur: Mongo Cursor
         :returns:  DataFrame -- a DataFrame of the block information.
         """

@@ -7,14 +7,11 @@ Park App is a web app built with Python and Flask that is designed to predict an
 Park App is motivated by the desire to spend more time walking around a city and less driving around a city looking for parking. It is a full-stack machine learning project that was built during the SharpestMinds mentorship program.
 
 ## Documentation
-Documentation can be built using [Sphinx](http://www.sphinx-doc.org/en/master/) in the `docs` folder by calling `make html`.
+Documentation can be built using [Sphinx](http://www.sphinx-doc.org/en/master/) in the `docs` folder by calling `make html`. It can also be accessed at https://parkapp.readthedocs.io/.
 
 ## Installation
 
 ## To Do
-- Implement testing
-- Create MongoDB setup script
-- Create requirements.txt
 
 ## Credits
 Billy Hines  
