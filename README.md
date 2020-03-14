@@ -1,8 +1,8 @@
 # Park App
 Park App is a web app built with Python and Flask that is designed to predict and display the availability of parking in Downtown Melbourne Australia.
 
-![ParkApp Demo Gif](img/gif1_2.gif)
-#### -- Project Status: Active
+![ParkApp Demo Gif](img/gif1_3.gif)
+#### -- Project Status: Complete
 
 ## Project Objective
 Park App is motivated by the desire to spend more time walking around a city and less driving around a city looking for parking. It is a full-stack machine learning project that was built during the SharpestMinds mentorship program.
@@ -33,11 +33,5 @@ Now that I had a way to make predictions about the availability of parking spots
 ## Documentation
 Documentation can be built using [Sphinx](http://www.sphinx-doc.org/en/master/) in the `docs` folder by calling `make html`. It can also be accessed at https://parkapp.readthedocs.io/.
 
-## Project To-Dos
-
-- write script for Mongo setup
-- increase pytest coverage
-- create installation instructions
-- deploy app to the cloud
-- publish user demo
-- publish blog post
+## Blog post
+Read more about this project at [link]
