@@ -34,4 +34,4 @@ Now that I had a way to make predictions about the availability of parking spots
 Documentation can be built using [Sphinx](http://www.sphinx-doc.org/en/master/) in the `docs` folder by calling `make html`. It can also be accessed at https://parkapp.readthedocs.io/.
 
 ## Blog post
-Read more about this project at [link]
+Read more about this project [here](https://billyhin.es/2020-03-18-smart-spot/)
